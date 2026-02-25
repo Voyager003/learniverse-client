@@ -21,6 +21,13 @@ const localStorageMock = (() => {
 
 Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock });
 
+// Track document.cookie writes
+let cookieJar = '';
+Object.defineProperty(document, 'cookie', {
+  get: () => cookieJar,
+  set: (v: string) => { cookieJar = v; },
+});
+
 const mockUser = {
   id: 'user-1',
   email: 'test@example.com',
@@ -40,6 +47,7 @@ describe('useAuthStore', () => {
       refreshToken: null,
     });
     localStorageMock.clear();
+    cookieJar = '';
     vi.clearAllMocks();
   });
 
@@ -72,6 +80,12 @@ describe('useAuthStore', () => {
         'learniverse_refresh_token',
         'refresh-456',
       );
+    });
+
+    it('세션 쿠키를 설정한다', () => {
+      useAuthStore.getState().setAuth(mockUser, 'access-123', 'refresh-456');
+
+      expect(cookieJar).toContain('learniverse_has_session=true');
     });
   });
 
@@ -115,6 +129,13 @@ describe('useAuthStore', () => {
       useAuthStore.getState().clearAuth();
 
       expect(localStorageMock.removeItem).toHaveBeenCalledWith('learniverse_refresh_token');
+    });
+
+    it('세션 쿠키를 제거한다', () => {
+      useAuthStore.getState().setAuth(mockUser, 'access', 'refresh');
+      useAuthStore.getState().clearAuth();
+
+      expect(cookieJar).toContain('max-age=0');
     });
   });
 

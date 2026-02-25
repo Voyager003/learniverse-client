@@ -4,6 +4,15 @@ import { create } from 'zustand';
 import type { UserResponse } from '@/lib/types';
 
 const REFRESH_TOKEN_KEY = 'learniverse_refresh_token';
+const SESSION_COOKIE = 'learniverse_has_session';
+
+function setSessionCookie() {
+  document.cookie = `${SESSION_COOKIE}=true;path=/;max-age=${60 * 60 * 24 * 7};SameSite=Lax`;
+}
+
+function clearSessionCookie() {
+  document.cookie = `${SESSION_COOKIE}=;path=/;max-age=0`;
+}
 
 interface AuthState {
   user: UserResponse | null;
@@ -24,6 +33,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   setAuth: (user, accessToken, refreshToken) => {
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    setSessionCookie();
     set({ user, accessToken, refreshToken, isAuthenticated: true });
   },
 
@@ -34,6 +44,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   clearAuth: () => {
     localStorage.removeItem(REFRESH_TOKEN_KEY);
+    clearSessionCookie();
     set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
   },
 
