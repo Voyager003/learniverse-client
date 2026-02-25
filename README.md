@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Learniverse Client
 
-## Getting Started
+온라인 교육 플랫폼의 프론트엔드 클라이언트입니다.
 
-First, run the development server:
+## 기술 스택
+
+| 항목 | 기술 |
+|------|------|
+| Framework | Next.js 16 + React 19 + TypeScript 5 |
+| UI | shadcn/ui (new-york) + Tailwind CSS 4 |
+| 서버 상태 | TanStack React Query |
+| 클라이언트 상태 | Zustand |
+| 폼 | react-hook-form + Zod |
+| 단위 테스트 | Vitest + Testing Library |
+| E2E 테스트 | Playwright |
+| 패키지 매니저 | bun |
+
+## 시작하기
+
+### 사전 요구사항
+
+- [Bun](https://bun.sh/) >= 1.0
+- [Node.js](https://nodejs.org/) >= 18
+- Learniverse 백엔드 서버 (NestJS)
+
+### 설치
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 환경 변수
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`.env.example`을 `.env.local`로 복사한 뒤 값을 설정합니다.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+cp .env.example .env.local
+```
 
-## Learn More
+| 변수 | 설명 | 기본값 |
+|------|------|--------|
+| `NEXT_PUBLIC_API_URL` | 백엔드 API 기본 URL | `http://localhost:3000/api/v1` |
 
-To learn more about Next.js, take a look at the following resources:
+### 실행
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# 개발 서버
+bun run dev
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# 프로덕션 빌드
+bun run build
+bun run start
+```
 
-## Deploy on Vercel
+## 명령어
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| 명령어 | 설명 |
+|--------|------|
+| `bun run dev` | 개발 서버 실행 |
+| `bun run build` | 프로덕션 빌드 |
+| `bun run start` | 프로덕션 서버 실행 |
+| `bun run lint` | ESLint 검사 |
+| `bun run test` | 단위 테스트 실행 |
+| `bun run test:watch` | 단위 테스트 워치 모드 |
+| `bun run test:coverage` | 테스트 커버리지 리포트 |
+| `bun run e2e` | Playwright E2E 테스트 |
+| `bun run e2e:ui` | Playwright UI 모드 |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 프로젝트 구조
+
+```
+app/
+├── (auth)/              # 인증 (로그인, 회원가입)
+├── (main)/              # 메인 레이아웃 (헤더 + 푸터)
+│   ├── courses/         # 강의 카탈로그 & 상세
+│   ├── dashboard/       # 학생/튜터 대시보드
+│   ├── admin/           # 관리자 페이지
+│   └── profile/         # 프로필
+├── layout.tsx           # Root Layout (Providers)
+└── globals.css
+
+components/
+├── ui/                  # shadcn/ui 컴포넌트
+├── layout/              # Header, Footer, Sidebar
+├── auth/                # 로그인/회원가입 폼, RoleGuard
+├── courses/             # 강의 카드, 그리드, 필터, 폼
+├── lectures/            # 레슨 목록, 폼
+├── enrollments/         # 수강 버튼, 진도 바
+├── assignments/         # 과제 카드, 폼
+├── submissions/         # 제출 폼, 피드백 폼
+└── shared/              # 공통 컴포넌트
+
+lib/
+├── api/                 # API 클라이언트 & 도메인별 함수
+├── hooks/               # TanStack Query 커스텀 훅
+├── store/               # Zustand 스토어 (인증)
+├── types/               # TypeScript 타입 정의
+├── utils/               # cn(), 날짜/숫자 포맷터
+└── providers/           # QueryProvider, ThemeProvider
+```
+
+## 백엔드 연동
+
+Learniverse 백엔드(NestJS)와 연동하여 동작합니다.
+
+- API 기본 경로: `/api/v1`
+- 인증: JWT (access token 15분 + refresh token 7일)
+- 역할: 학생(student), 튜터(tutor), 관리자(admin)
