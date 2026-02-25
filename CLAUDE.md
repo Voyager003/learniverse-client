@@ -9,7 +9,7 @@
 - **서버 상태**: TanStack React Query
 - **클라이언트 상태**: Zustand (auth)
 - **폼**: react-hook-form + Zod
-- **테스트**: Vitest + Testing Library (단위), Playwright (E2E)
+- **테스트**: Vitest (순수 로직 단위 테스트), Playwright (E2E 사용자 흐름)
 - **패키지 매니저**: bun
 
 ## 명령어
@@ -53,13 +53,21 @@ Phase N-2 코드 작성 → 사용자와 검증 → 커밋 → [STOP] 사용자 
 
 ### TDD (Test-Driven Development)
 
-**반드시 테스트를 먼저 작성한다.**
+**순수 로직에 대해 테스트를 먼저 작성한다.**
 
 1. RED: 실패하는 테스트를 먼저 작성
 2. GREEN: 테스트를 통과하는 최소한의 코드 작성
 3. REFACTOR: 코드 정리 (테스트 통과 유지)
 
-목표 커버리지: 80% 이상
+### 테스트 전략
+
+| 레이어 | 도구 | 대상 |
+|--------|------|------|
+| 순수 로직 | Vitest | API 클라이언트, 스토어, 유틸리티, Zod 스키마 |
+| 사용자 흐름 | Playwright | 로그인, 수강 신청, 강의 관리 등 실제 시나리오 |
+
+- **컴포넌트 렌더링 테스트(Testing Library)는 작성하지 않는다** — E2E에서 커버
+- Vitest는 UI가 아닌 **로직**(API 통신, 상태 관리, 유효성 검증)에 집중
 
 ### 검증 절차
 
