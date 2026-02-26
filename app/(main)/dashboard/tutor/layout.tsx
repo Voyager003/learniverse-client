@@ -13,7 +13,7 @@ export default function TutorDashboardLayout({
   return (
     <div className="flex min-h-[calc(100vh-8rem)]">
       <Sidebar />
-      <main className="flex-1">{children}</main>
+      <div className="flex-1">{children}</div>
     </div>
   );
 }
