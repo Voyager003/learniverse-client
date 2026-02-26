@@ -57,3 +57,26 @@ export const lectureSchema = z.object({
 });
 
 export type LectureFormValues = z.infer<typeof lectureSchema>;
+
+export const submissionSchema = z.object({
+  content: z
+    .string()
+    .min(1, '제출 내용을 입력해주세요')
+    .max(5000, '내용은 5000자 이하여야 합니다'),
+});
+
+export type SubmissionFormValues = z.infer<typeof submissionSchema>;
+
+export const feedbackSchema = z.object({
+  feedback: z
+    .string()
+    .min(1, '피드백을 입력해주세요')
+    .max(2000, '피드백은 2000자 이하여야 합니다'),
+  score: z
+    .number()
+    .min(0, '점수는 0 이상이어야 합니다')
+    .max(100, '점수는 100 이하여야 합니다')
+    .optional(),
+});
+
+export type FeedbackFormValues = z.infer<typeof feedbackSchema>;
