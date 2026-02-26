@@ -11,6 +11,10 @@ export const usersApi = {
   getUsers: () =>
     apiClient.get<UserResponse[]>('/users'),
 
-  getUser: (id: string) =>
-    apiClient.get<UserResponse>(`/users/${id}`),
+  getUser: (id: string) => {
+    if (!id || id.includes('/') || id.includes('..')) {
+      return Promise.reject(new Error('Invalid user ID'));
+    }
+    return apiClient.get<UserResponse>(`/users/${id}`);
+  },
 };

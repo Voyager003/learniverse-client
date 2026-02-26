@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,8 +27,7 @@ import { profileSchema, type ProfileFormValues } from '@/lib/utils/validators';
 export default function ProfilePage() {
   const user = useAuthStore((s) => s.user);
   const setAuth = useAuthStore((s) => s.setAuth);
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const refreshToken = useAuthStore((s) => s.refreshToken);
+  const queryClient = useQueryClient();
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -51,7 +50,9 @@ export default function ProfilePage() {
       return usersApi.updateMe(body);
     },
     onSuccess: (updatedUser) => {
+      const { accessToken, refreshToken } = useAuthStore.getState();
       setAuth(updatedUser, accessToken ?? '', refreshToken ?? '');
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       form.setValue('password', '');
       toast.success('프로필이 수정되었습니다');
     },
@@ -122,6 +123,7 @@ export default function ProfilePage() {
                       <Input
                         type="password"
                         placeholder="새 비밀번호"
+                        autoComplete="new-password"
                         {...field}
                       />
                     </FormControl>

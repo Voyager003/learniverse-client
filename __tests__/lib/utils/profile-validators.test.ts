@@ -31,4 +31,9 @@ describe('profileSchema', () => {
     const result = profileSchema.safeParse({ name: '', password: '' });
     expect(result.success).toBe(true);
   });
+
+  it('비밀번호가 100자를 초과하면 실패한다', () => {
+    const result = profileSchema.safeParse({ name: '', password: 'a'.repeat(101) });
+    expect(result.success).toBe(false);
+  });
 });
