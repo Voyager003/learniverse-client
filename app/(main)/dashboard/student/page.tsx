@@ -3,7 +3,6 @@
 import { useMyEnrollments } from '@/lib/hooks/use-enrollments';
 import { EnrollmentCard } from '@/components/enrollments/enrollment-card';
 import { EmptyState } from '@/components/shared/empty-state';
-import { LoadingSpinner } from '@/components/shared/loading-spinner';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function EnrollmentListSkeleton() {
@@ -29,7 +28,10 @@ export default function StudentDashboardPage() {
       {isLoading && <EnrollmentListSkeleton />}
 
       {error && (
-        <LoadingSpinner className="min-h-[30vh]" size="lg" />
+        <EmptyState
+          title="데이터를 불러올 수 없습니다"
+          description="잠시 후 다시 시도해주세요"
+        />
       )}
 
       {enrollments && enrollments.length === 0 && (

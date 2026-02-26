@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ProgressBar } from '@/components/enrollments/progress-bar';
 import { LoadingSpinner } from '@/components/shared/loading-spinner';
+import { EmptyState } from '@/components/shared/empty-state';
 import { useEnrollment, useUpdateProgress } from '@/lib/hooks/use-enrollments';
 import { useCourse } from '@/lib/hooks/use-courses';
 import { ENROLLMENT_STATUS_LABELS, EnrollmentStatus } from '@/lib/types';
@@ -30,7 +31,14 @@ export default function EnrollmentDetailPage({ params }: EnrollmentDetailPagePro
   }
 
   if (!enrollment) {
-    return <LoadingSpinner className="min-h-[50vh]" size="lg" />;
+    return (
+      <div className="container mx-auto px-4 py-10">
+        <EmptyState
+          title="수강 정보를 찾을 수 없습니다"
+          description="존재하지 않거나 접근 권한이 없는 수강 정보입니다"
+        />
+      </div>
+    );
   }
 
   const lectures = course?.lectures
