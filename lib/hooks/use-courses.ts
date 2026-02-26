@@ -11,6 +11,14 @@ import type {
 } from '@/lib/types';
 
 const COURSES_KEY = 'courses';
+const MY_COURSES_KEY = 'my-courses';
+
+export function useMyCourses() {
+  return useQuery({
+    queryKey: [MY_COURSES_KEY],
+    queryFn: () => coursesApi.getMyCourses(),
+  });
+}
 
 export function useCourses(query?: CourseQuery) {
   return useQuery({
@@ -31,7 +39,10 @@ export function useCreateCourse() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: CreateCourseRequest) => coursesApi.createCourse(body),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [COURSES_KEY] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [COURSES_KEY] });
+      queryClient.invalidateQueries({ queryKey: [MY_COURSES_KEY] });
+    },
   });
 }
 
@@ -40,7 +51,10 @@ export function useUpdateCourse() {
   return useMutation({
     mutationFn: ({ id, body }: { id: string; body: UpdateCourseRequest }) =>
       coursesApi.updateCourse(id, body),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [COURSES_KEY] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [COURSES_KEY] });
+      queryClient.invalidateQueries({ queryKey: [MY_COURSES_KEY] });
+    },
   });
 }
 
@@ -48,7 +62,10 @@ export function useDeleteCourse() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => coursesApi.deleteCourse(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [COURSES_KEY] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [COURSES_KEY] });
+      queryClient.invalidateQueries({ queryKey: [MY_COURSES_KEY] });
+    },
   });
 }
 
