@@ -58,6 +58,20 @@ export const lectureSchema = z.object({
 
 export type LectureFormValues = z.infer<typeof lectureSchema>;
 
+export const assignmentSchema = z.object({
+  title: z
+    .string()
+    .min(1, '과제 제목을 입력해주세요')
+    .max(200, '제목은 200자 이하여야 합니다'),
+  description: z
+    .string()
+    .min(1, '과제 설명을 입력해주세요')
+    .max(2000, '설명은 2000자 이하여야 합니다'),
+  dueDate: z.string().optional().or(z.literal('')),
+});
+
+export type AssignmentFormValues = z.infer<typeof assignmentSchema>;
+
 export const submissionSchema = z.object({
   content: z
     .string()
