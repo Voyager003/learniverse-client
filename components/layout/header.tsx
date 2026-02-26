@@ -44,11 +44,11 @@ export function Header() {
           {isAuthenticated ? (
             <UserMenu />
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/login">로그인</Link>
               </Button>
-              <Button size="sm" asChild>
+              <Button size="sm" asChild className="hidden sm:inline-flex">
                 <Link href="/register">회원가입</Link>
               </Button>
             </div>
