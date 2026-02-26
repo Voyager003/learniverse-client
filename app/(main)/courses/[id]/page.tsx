@@ -39,18 +39,8 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
 
       <div className="container mx-auto px-4 py-10">
         <div className="grid gap-10 lg:grid-cols-3">
-          {/* Lecture list */}
-          <div className="lg:col-span-2">
-            <h2 className="text-xl font-bold">커리큘럼</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              총 {course.lectures?.length ?? 0}개 레슨
-            </p>
-            <Separator className="my-4" />
-            <LectureList lectures={course.lectures ?? []} />
-          </div>
-
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
+          {/* Sidebar — mobile first, desktop right */}
+          <div className="order-first lg:order-last lg:col-span-1">
             <div className="sticky top-20 rounded-xl border p-6">
               <h3 className="text-lg font-semibold">수강 신청</h3>
               <p className="mt-2 text-sm text-muted-foreground">
@@ -60,6 +50,16 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                 <EnrollButton courseId={course.id} />
               </div>
             </div>
+          </div>
+
+          {/* Lecture list */}
+          <div className="lg:col-span-2">
+            <h2 className="text-xl font-bold">커리큘럼</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              총 {course.lectures?.length ?? 0}개 레슨
+            </p>
+            <Separator className="my-4" />
+            <LectureList lectures={course.lectures ?? []} />
           </div>
         </div>
       </div>
