@@ -57,7 +57,7 @@ export default function TutorDashboardPage() {
       {courses && courses.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {courses.map((course) => (
-            <Card key={course.id} className="transition-colors hover:border-primary/50">
+            <Card key={course.id} className="transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-md">
               <CardHeader>
                 <div className="flex items-center justify-between gap-2">
                   <CardTitle className="line-clamp-1 text-lg">{course.title}</CardTitle>

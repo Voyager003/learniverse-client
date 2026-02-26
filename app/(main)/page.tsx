@@ -57,15 +57,15 @@ export default function HomePage() {
       {/* Hero */}
       <section className="relative overflow-hidden border-b bg-gradient-to-b from-primary/5 to-background">
         <div className="container mx-auto px-4 py-24 text-center md:py-32">
-          <h1 className="text-4xl font-bold tracking-tight md:text-6xl">
+          <h1 className="animate-fade-in-up text-4xl font-bold tracking-tight md:text-6xl">
             배움의 우주,{' '}
             <span className="text-primary">Learniverse</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+          <p className="animate-fade-in-up mx-auto mt-6 max-w-2xl text-lg text-muted-foreground" style={{ animationDelay: '0.1s' }}>
             프로그래밍부터 디자인까지, 원하는 분야의 강의를 탐색하고
             체계적인 커리큘럼으로 성장하세요.
           </p>
-          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+          <div className="animate-fade-in-up mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center" style={{ animationDelay: '0.2s' }}>
             <Button size="lg" asChild>
               <Link href="/courses">강의 둘러보기</Link>
             </Button>
@@ -109,7 +109,7 @@ export default function HomePage() {
               <Link
                 key={cat.label}
                 href="/courses"
-                className="flex flex-col items-center gap-3 rounded-xl border bg-background p-6 transition-colors hover:border-primary/50 hover:bg-primary/5"
+                className="flex flex-col items-center gap-3 rounded-xl border bg-background p-6 transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:bg-primary/5 hover:shadow-md"
               >
                 <cat.icon className="h-8 w-8 text-primary" />
                 <span className="text-sm font-medium">{cat.label}</span>

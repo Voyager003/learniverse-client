@@ -18,7 +18,7 @@ const statusVariantMap: Record<EnrollmentStatus, 'default' | 'secondary' | 'outl
 export function EnrollmentCard({ enrollment }: EnrollmentCardProps) {
   return (
     <Link href={`/dashboard/student/enrollments/${enrollment.id}`}>
-      <Card className="transition-colors hover:border-primary/50">
+      <Card className="transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-md">
         <CardHeader>
           <div className="flex items-center justify-between gap-2">
             <CardTitle className="line-clamp-1 text-lg">

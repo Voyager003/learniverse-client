@@ -17,7 +17,7 @@ interface CourseCardProps {
 export function CourseCard({ course }: CourseCardProps) {
   return (
     <Link href={`/courses/${course.id}`}>
-      <Card className="h-full transition-colors hover:border-primary/50">
+      <Card className="h-full transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-md">
         <CardHeader>
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-medium text-muted-foreground">
