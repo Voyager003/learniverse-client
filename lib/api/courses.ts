@@ -1,4 +1,5 @@
 import { apiClient } from '@/lib/api/client';
+import { buildCourseQueryString } from '@/lib/utils/query-string';
 import type {
   CourseResponse,
   CourseQuery,
@@ -10,22 +11,9 @@ import type {
   PaginatedData,
 } from '@/lib/types';
 
-function buildQueryString(query?: CourseQuery): string {
-  if (!query) return '';
-
-  const params = new URLSearchParams();
-  if (query.page) params.set('page', String(query.page));
-  if (query.limit) params.set('limit', String(query.limit));
-  if (query.category) params.set('category', query.category);
-  if (query.difficulty) params.set('difficulty', query.difficulty);
-
-  const qs = params.toString();
-  return qs ? `?${qs}` : '';
-}
-
 export const coursesApi = {
   getCourses: (query?: CourseQuery) =>
-    apiClient.get<PaginatedData<CourseResponse>>(`/courses${buildQueryString(query)}`),
+    apiClient.get<PaginatedData<CourseResponse>>(`/courses${buildCourseQueryString(query)}`),
 
   getCourse: (id: string) =>
     apiClient.get<CourseResponse>(`/courses/${id}`),

@@ -1,24 +1,12 @@
 import type { CourseResponse, CourseQuery, PaginatedData, ApiResponse } from '@/lib/types';
+import { buildCourseQueryString } from '@/lib/utils/query-string';
 
 function getBaseUrl(): string {
   return process.env.NEXT_PUBLIC_API_URL ?? '';
 }
 
-function buildQueryString(query?: CourseQuery): string {
-  if (!query) return '';
-
-  const params = new URLSearchParams();
-  if (query.page) params.set('page', String(query.page));
-  if (query.limit) params.set('limit', String(query.limit));
-  if (query.category) params.set('category', query.category);
-  if (query.difficulty) params.set('difficulty', query.difficulty);
-
-  const qs = params.toString();
-  return qs ? `?${qs}` : '';
-}
-
 export async function fetchCourses(query?: CourseQuery): Promise<PaginatedData<CourseResponse>> {
-  const res = await fetch(`${getBaseUrl()}/courses${buildQueryString(query)}`, {
+  const res = await fetch(`${getBaseUrl()}/courses${buildCourseQueryString(query)}`, {
     cache: 'no-store',
   });
 
