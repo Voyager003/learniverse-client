@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { PlusCircle, Pencil, BookOpen } from 'lucide-react';
+import { PlusCircle, Pencil, BookOpen, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -79,6 +79,11 @@ export default function TutorDashboardPage() {
                     <Button variant="ghost" size="icon" asChild>
                       <Link href={`/dashboard/tutor/courses/${course.id}/lectures`}>
                         <BookOpen className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                    <Button variant="ghost" size="icon" asChild>
+                      <Link href={`/dashboard/tutor/courses/${course.id}/assignments`}>
+                        <ClipboardList className="h-4 w-4" />
                       </Link>
                     </Button>
                     <Button variant="ghost" size="icon" asChild>
