@@ -77,17 +77,17 @@ export default function TutorDashboardPage() {
                   </div>
                   <div className="flex gap-1">
                     <Button variant="ghost" size="icon" asChild>
-                      <Link href={`/dashboard/tutor/courses/${course.id}/lectures`}>
+                      <Link href={`/dashboard/tutor/courses/${course.id}/lectures`} aria-label="레슨 관리">
                         <BookOpen className="h-4 w-4" />
                       </Link>
                     </Button>
                     <Button variant="ghost" size="icon" asChild>
-                      <Link href={`/dashboard/tutor/courses/${course.id}/assignments`}>
+                      <Link href={`/dashboard/tutor/courses/${course.id}/assignments`} aria-label="과제 관리">
                         <ClipboardList className="h-4 w-4" />
                       </Link>
                     </Button>
                     <Button variant="ghost" size="icon" asChild>
-                      <Link href={`/dashboard/tutor/courses/${course.id}/edit`}>
+                      <Link href={`/dashboard/tutor/courses/${course.id}/edit`} aria-label="강의 편집">
                         <Pencil className="h-4 w-4" />
                       </Link>
                     </Button>

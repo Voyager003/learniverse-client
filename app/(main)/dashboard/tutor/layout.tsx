@@ -1,4 +1,9 @@
+import type { Metadata } from 'next';
 import { Sidebar } from '@/components/layout/sidebar';
+
+export const metadata: Metadata = {
+  title: '튜터 대시보드',
+};
 
 export default function TutorDashboardLayout({
   children,

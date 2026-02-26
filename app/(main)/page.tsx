@@ -55,7 +55,7 @@ export default function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden border-b bg-gradient-to-b from-primary/5 to-background">
+      <section aria-label="소개" className="relative overflow-hidden border-b bg-gradient-to-b from-primary/5 to-background">
         <div className="container mx-auto px-4 py-24 text-center md:py-32">
           <h1 className="animate-fade-in-up text-4xl font-bold tracking-tight md:text-6xl">
             배움의 우주,{' '}
@@ -77,7 +77,7 @@ export default function HomePage() {
       </section>
 
       {/* Features */}
-      <section className="container mx-auto px-4 py-20">
+      <section aria-label="주요 기능" className="container mx-auto px-4 py-20">
         <h2 className="text-center text-3xl font-bold">왜 Learniverse인가요?</h2>
         <p className="mx-auto mt-4 max-w-xl text-center text-muted-foreground">
           학습자와 튜터 모두를 위한 올인원 교육 플랫폼
@@ -98,7 +98,7 @@ export default function HomePage() {
       </section>
 
       {/* Categories */}
-      <section className="border-t bg-muted/50">
+      <section aria-label="카테고리" className="border-t bg-muted/50">
         <div className="container mx-auto px-4 py-20">
           <h2 className="text-center text-3xl font-bold">다양한 카테고리</h2>
           <p className="mx-auto mt-4 max-w-xl text-center text-muted-foreground">
@@ -120,7 +120,7 @@ export default function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="container mx-auto px-4 py-20 text-center">
+      <section aria-label="시작하기" className="container mx-auto px-4 py-20 text-center">
         <h2 className="text-3xl font-bold">지금 바로 시작하세요</h2>
         <p className="mx-auto mt-4 max-w-md text-muted-foreground">
           무료 회원가입 후 다양한 강의를 탐색해보세요.
