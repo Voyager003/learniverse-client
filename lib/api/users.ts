@@ -7,4 +7,10 @@ export const usersApi = {
 
   updateMe: (data: UpdateUserRequest) =>
     apiClient.patch<UserResponse>('/users/me', data),
+
+  getUsers: () =>
+    apiClient.get<UserResponse[]>('/users'),
+
+  getUser: (id: string) =>
+    apiClient.get<UserResponse>(`/users/${id}`),
 };
