@@ -94,3 +94,17 @@ export const feedbackSchema = z.object({
 });
 
 export type FeedbackFormValues = z.infer<typeof feedbackSchema>;
+
+export const profileSchema = z.object({
+  name: z
+    .string()
+    .max(50, '이름은 50자 이하여야 합니다'),
+  password: z
+    .string()
+    .max(100, '비밀번호는 100자 이하여야 합니다')
+    .refine((val) => val === '' || val.length >= 6, {
+      message: '비밀번호는 6자 이상이어야 합니다',
+    }),
+});
+
+export type ProfileFormValues = z.infer<typeof profileSchema>;
