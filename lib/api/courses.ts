@@ -15,8 +15,9 @@ export const coursesApi = {
   getCourses: (query?: CourseQuery) =>
     apiClient.get<PaginatedData<CourseResponse>>(`/courses${buildCourseQueryString(query)}`),
 
-  getMyCourses: () =>
-    apiClient.get<CourseResponse[]>('/courses/me'),
+  getMyCourses: (tutorId: string) =>
+    apiClient.get<PaginatedData<CourseResponse>>('/courses?page=1&limit=100')
+      .then((result) => result.data.filter((c) => c.tutorId === tutorId)),
 
   getCourse: (id: string) =>
     apiClient.get<CourseResponse>(`/courses/${id}`),

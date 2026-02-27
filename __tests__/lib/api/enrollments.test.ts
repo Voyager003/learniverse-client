@@ -32,12 +32,13 @@ const mockEnrollment: EnrollmentResponse = {
 describe('enrollmentsApi', () => {
   describe('getMyEnrollments', () => {
     it('내 수강 목록을 조회한다', async () => {
-      mockGet.mockResolvedValueOnce([mockEnrollment]);
+      const paginatedData = { data: [mockEnrollment], total: 1, page: 1, limit: 10, totalPages: 1 };
+      mockGet.mockResolvedValueOnce(paginatedData);
 
       const result = await enrollmentsApi.getMyEnrollments();
 
-      expect(mockGet).toHaveBeenCalledWith('/enrollments/me');
-      expect(result).toEqual([mockEnrollment]);
+      expect(mockGet).toHaveBeenCalledWith('/enrollments/my');
+      expect(result).toEqual(paginatedData);
     });
   });
 
