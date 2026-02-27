@@ -51,6 +51,18 @@ export async function promoteToTutor(email: string): Promise<void> {
 }
 
 /**
+ * Promote user to admin role via direct DB query.
+ */
+export async function promoteToAdmin(email: string): Promise<void> {
+  const { execSync } = await import('child_process');
+  const sql = `UPDATE users SET role = 'admin' WHERE email = '${email}';`;
+  execSync(
+    'docker exec -i learniverse-postgres-1 psql -U postgres -d learniverse',
+    { input: sql },
+  );
+}
+
+/**
  * Create a course via backend API.
  */
 export async function apiCreateCourse(
