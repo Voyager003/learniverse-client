@@ -3,11 +3,12 @@ import type {
   EnrollmentResponse,
   CreateEnrollmentRequest,
   UpdateProgressRequest,
+  PaginatedData,
 } from '@/lib/types';
 
 export const enrollmentsApi = {
   getMyEnrollments: () =>
-    apiClient.get<EnrollmentResponse[]>('/enrollments/me'),
+    apiClient.get<PaginatedData<EnrollmentResponse>>('/enrollments/my'),
 
   getEnrollment: (id: string) =>
     apiClient.get<EnrollmentResponse>(`/enrollments/${id}`),

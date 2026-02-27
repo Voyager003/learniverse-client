@@ -90,3 +90,42 @@ export async function apiPublishCourse(
     body: JSON.stringify({ isPublished: true }),
   });
 }
+
+/**
+ * Create a lecture for a course via backend API.
+ */
+export async function apiCreateLecture(
+  token: string,
+  courseId: string,
+  data: { title: string; content: string; order: number },
+): Promise<{ id: string }> {
+  const res = await fetch(`${API_URL}/courses/${courseId}/lectures`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  return json.data;
+}
+
+/**
+ * Enroll a student in a course via backend API.
+ */
+export async function apiEnroll(
+  token: string,
+  courseId: string,
+): Promise<{ id: string }> {
+  const res = await fetch(`${API_URL}/enrollments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ courseId }),
+  });
+  const json = await res.json();
+  return json.data;
+}

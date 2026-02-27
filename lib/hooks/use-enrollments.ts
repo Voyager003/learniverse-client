@@ -8,15 +8,23 @@ const ENROLLMENTS_KEY = 'enrollments';
 
 export function useMyEnrollments() {
   return useQuery({
-    queryKey: [ENROLLMENTS_KEY, 'me'],
-    queryFn: () => enrollmentsApi.getMyEnrollments(),
+    queryKey: [ENROLLMENTS_KEY, 'my'],
+    queryFn: async () => {
+      const result = await enrollmentsApi.getMyEnrollments();
+      return result.data;
+    },
   });
 }
 
 export function useEnrollment(id: string) {
   return useQuery({
     queryKey: [ENROLLMENTS_KEY, id],
-    queryFn: () => enrollmentsApi.getEnrollment(id),
+    queryFn: async () => {
+      const result = await enrollmentsApi.getMyEnrollments();
+      const enrollment = result.data.find((e) => e.id === id);
+      if (!enrollment) throw new Error('Enrollment not found');
+      return enrollment;
+    },
     enabled: !!id,
   });
 }
@@ -25,7 +33,7 @@ export function useCreateEnrollment() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: CreateEnrollmentRequest) => enrollmentsApi.createEnrollment(body),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [ENROLLMENTS_KEY] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [ENROLLMENTS_KEY, 'my'] }),
   });
 }
 
@@ -36,7 +44,7 @@ export function useUpdateProgress(enrollmentId: string) {
       enrollmentsApi.updateProgress(enrollmentId, body),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [ENROLLMENTS_KEY, enrollmentId] });
-      queryClient.invalidateQueries({ queryKey: [ENROLLMENTS_KEY, 'me'] });
+      queryClient.invalidateQueries({ queryKey: [ENROLLMENTS_KEY, 'my'] });
     },
   });
 }
