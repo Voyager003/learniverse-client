@@ -6,6 +6,19 @@ interface AuthTokens {
 }
 
 /**
+ * Assert API response is successful, throw descriptive error otherwise.
+ */
+async function assertOk(res: Response, context: string): Promise<Record<string, unknown>> {
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(
+      `[E2E Seed] ${context} failed (${res.status}): ${JSON.stringify(json.message ?? json)}`,
+    );
+  }
+  return json;
+}
+
+/**
  * Register a user via backend API.
  */
 export async function apiRegister(data: {
@@ -18,8 +31,8 @@ export async function apiRegister(data: {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  const json = await res.json();
-  return json.data;
+  const json = await assertOk(res, `Register ${data.email}`);
+  return json.data as AuthTokens;
 }
 
 /**
@@ -34,8 +47,8 @@ export async function apiLogin(data: {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  const json = await res.json();
-  return json.data;
+  const json = await assertOk(res, `Login ${data.email}`);
+  return json.data as AuthTokens;
 }
 
 /**
@@ -82,8 +95,8 @@ export async function apiCreateCourse(
     },
     body: JSON.stringify(data),
   });
-  const json = await res.json();
-  return json.data;
+  const json = await assertOk(res, `CreateCourse "${data.title}"`);
+  return json.data as { id: string };
 }
 
 /**
@@ -93,7 +106,7 @@ export async function apiPublishCourse(
   token: string,
   courseId: string,
 ): Promise<void> {
-  await fetch(`${API_URL}/courses/${courseId}`, {
+  const res = await fetch(`${API_URL}/courses/${courseId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -101,6 +114,7 @@ export async function apiPublishCourse(
     },
     body: JSON.stringify({ isPublished: true }),
   });
+  await assertOk(res, `PublishCourse ${courseId}`);
 }
 
 /**
@@ -119,8 +133,8 @@ export async function apiCreateLecture(
     },
     body: JSON.stringify(data),
   });
-  const json = await res.json();
-  return json.data;
+  const json = await assertOk(res, `CreateLecture "${data.title}"`);
+  return json.data as { id: string };
 }
 
 /**
@@ -138,8 +152,8 @@ export async function apiEnroll(
     },
     body: JSON.stringify({ courseId }),
   });
-  const json = await res.json();
-  return json.data;
+  const json = await assertOk(res, `Enroll course ${courseId}`);
+  return json.data as { id: string };
 }
 
 /**
@@ -158,8 +172,8 @@ export async function apiCreateAssignment(
     },
     body: JSON.stringify(data),
   });
-  const json = await res.json();
-  return json.data;
+  const json = await assertOk(res, `CreateAssignment "${data.title}"`);
+  return json.data as { id: string };
 }
 
 /**
@@ -178,6 +192,6 @@ export async function apiSubmitAssignment(
     },
     body: JSON.stringify(data),
   });
-  const json = await res.json();
-  return json.data;
+  const json = await assertOk(res, `SubmitAssignment ${assignmentId}`);
+  return json.data as { id: string };
 }
