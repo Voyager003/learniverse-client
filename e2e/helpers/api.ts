@@ -129,3 +129,43 @@ export async function apiEnroll(
   const json = await res.json();
   return json.data;
 }
+
+/**
+ * Create an assignment for a course via backend API.
+ */
+export async function apiCreateAssignment(
+  token: string,
+  courseId: string,
+  data: { title: string; description: string; dueDate?: string },
+): Promise<{ id: string }> {
+  const res = await fetch(`${API_URL}/courses/${courseId}/assignments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  return json.data;
+}
+
+/**
+ * Submit an assignment as a student via backend API.
+ */
+export async function apiSubmitAssignment(
+  token: string,
+  assignmentId: string,
+  data: { content: string },
+): Promise<{ id: string }> {
+  const res = await fetch(`${API_URL}/assignments/${assignmentId}/submissions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  return json.data;
+}

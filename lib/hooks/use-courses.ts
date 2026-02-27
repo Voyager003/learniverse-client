@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { coursesApi } from '@/lib/api/courses';
+import { useAuthStore } from '@/lib/store/auth-store';
 import type {
   CourseQuery,
   CreateCourseRequest,
@@ -14,9 +15,11 @@ const COURSES_KEY = 'courses';
 const MY_COURSES_KEY = 'my-courses';
 
 export function useMyCourses() {
+  const user = useAuthStore((s) => s.user);
   return useQuery({
-    queryKey: [MY_COURSES_KEY],
-    queryFn: () => coursesApi.getMyCourses(),
+    queryKey: [MY_COURSES_KEY, user?.id],
+    queryFn: () => coursesApi.getMyCourses(user!.id),
+    enabled: !!user?.id,
   });
 }
 
