@@ -41,6 +41,12 @@ cp .env.example .env.local
 |------|------|--------|
 | `NEXT_PUBLIC_API_URL` | 백엔드 API 기본 URL | `http://localhost:3000/api/v1` |
 
+프로덕션(Vercel)에서는 아래 값을 권장합니다.
+
+```bash
+NEXT_PUBLIC_API_URL=https://api.<your-domain>/api/v1
+```
+
 ### 실행
 
 ```bash
@@ -106,3 +112,9 @@ Learniverse 백엔드(NestJS)와 연동하여 동작합니다.
 - API 기본 경로: `/api/v1`
 - 인증: JWT (access token 15분 + refresh token 7일)
 - 역할: 학생(student), 튜터(tutor), 관리자(admin)
+
+### 프로덕션 연동 체크리스트
+
+1. Vercel 환경변수 `NEXT_PUBLIC_API_URL`이 `https://api.<your-domain>/api/v1`인지 확인
+2. 백엔드 `APP_CORS_ORIGINS`에 Vercel 도메인이 포함되어 있는지 확인
+3. 브라우저 개발자도구에서 Mixed Content/CORS 오류가 없는지 확인
