@@ -18,7 +18,7 @@ export const registerSchema = z.object({
     .string()
     .min(1, '이름을 입력해주세요')
     .max(50, '이름은 50자 이하여야 합니다'),
-  role: z.enum(['student', 'tutor']).default('student'),
+  role: z.enum(['student', 'tutor']),
 });
 
 export type RegisterFormValues = z.infer<typeof registerSchema>;
