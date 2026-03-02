@@ -10,6 +10,13 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Card,
   CardContent,
   CardDescription,
@@ -25,6 +32,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { ApiClientError } from '@/lib/api/client';
 import { registerSchema, type RegisterFormValues } from '@/lib/utils/validators';
 import { useAuth } from '@/lib/hooks/use-auth';
 
@@ -38,6 +46,7 @@ export function RegisterForm() {
       email: '',
       password: '',
       name: '',
+      role: 'student',
     },
   });
 
@@ -46,7 +55,17 @@ export function RegisterForm() {
       await register(values);
       toast.success('회원가입이 완료되었습니다');
       router.push('/dashboard');
-    } catch {
+    } catch (error) {
+      if (error instanceof ApiClientError) {
+        if (error.statusCode === 409) {
+          toast.error('이미 가입된 이메일입니다. 다른 이메일을 사용해주세요.');
+          return;
+        }
+        if (error.statusCode === 400) {
+          toast.error('회원가입 요청이 올바르지 않습니다. 입력값을 확인해주세요.');
+          return;
+        }
+      }
       toast.error('회원가입에 실패했습니다. 다시 시도해주세요.');
     }
   }
@@ -109,6 +128,27 @@ export function RegisterForm() {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>역할</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="역할 선택" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="student">학생</SelectItem>
+                      <SelectItem value="tutor">튜터</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
