@@ -137,10 +137,20 @@ describe('useAuth', () => {
       const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
 
       await act(async () => {
-        await result.current.register({ email: 'test@example.com', password: 'pass', name: 'Test' });
+        await result.current.register({
+          email: 'test@example.com',
+          password: 'pass',
+          name: 'Test',
+          role: 'student',
+        });
       });
 
-      expect(mockRegister).toHaveBeenCalledWith({ email: 'test@example.com', password: 'pass', name: 'Test' });
+      expect(mockRegister).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        password: 'pass',
+        name: 'Test',
+        role: 'student',
+      });
       expect(mockSetAuth).toHaveBeenCalledWith(mockUser, 'access-token', 'refresh-token');
     });
   });

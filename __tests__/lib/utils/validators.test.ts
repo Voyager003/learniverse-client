@@ -41,6 +41,17 @@ describe('registerSchema', () => {
       email: 'test@example.com',
       password: 'password123',
       name: 'Test User',
+      role: 'student',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('튜터 role 값도 통과시킨다', () => {
+    const result = registerSchema.safeParse({
+      email: 'test@example.com',
+      password: 'password123',
+      name: 'Test User',
+      role: 'tutor',
     });
     expect(result.success).toBe(true);
   });
@@ -50,6 +61,7 @@ describe('registerSchema', () => {
       email: 'test@example.com',
       password: 'password123',
       name: '',
+      role: 'student',
     });
     expect(result.success).toBe(false);
   });
@@ -59,6 +71,7 @@ describe('registerSchema', () => {
       email: 'test@example.com',
       password: 'password123',
       name: 'a'.repeat(51),
+      role: 'student',
     });
     expect(result.success).toBe(false);
   });
@@ -68,6 +81,17 @@ describe('registerSchema', () => {
       email: 'test@example.com',
       password: 'a'.repeat(101),
       name: 'Test',
+      role: 'student',
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('허용되지 않은 role 값이면 실패한다', () => {
+    const result = registerSchema.safeParse({
+      email: 'test@example.com',
+      password: 'password123',
+      name: 'Test',
+      role: 'admin',
     });
     expect(result.success).toBe(false);
   });

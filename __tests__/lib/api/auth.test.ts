@@ -30,6 +30,7 @@ describe('authApi', () => {
         email: 'test@example.com',
         password: 'password123',
         name: 'Test User',
+        role: 'student',
       };
       const response = { accessToken: 'at', refreshToken: 'rt' };
       mockPost.mockResolvedValueOnce(response);

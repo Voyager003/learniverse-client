@@ -7,6 +7,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   name: string;
+  role: 'student' | 'tutor';
 }
 
 export interface AuthResponse {
