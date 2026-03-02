@@ -14,12 +14,26 @@ export const TEST_PASSWORD = 'Test1234!';
  */
 export async function registerUser(
   page: Page,
-  { name, email, password }: { name: string; email: string; password: string },
+  {
+    name,
+    email,
+    password,
+    role = 'student',
+  }: {
+    name: string;
+    email: string;
+    password: string;
+    role?: 'student' | 'tutor';
+  },
 ) {
   await page.goto('/register');
   await page.getByLabel('이름').fill(name);
   await page.getByLabel('이메일').fill(email);
   await page.getByLabel('비밀번호').fill(password);
+  if (role === 'tutor') {
+    await page.getByRole('combobox', { name: '역할' }).click();
+    await page.getByRole('option', { name: '튜터' }).click();
+  }
   await page.getByRole('button', { name: '회원가입' }).click();
 }
 

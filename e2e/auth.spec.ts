@@ -10,6 +10,19 @@ test.describe('회원가입', () => {
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
   });
 
+  test('튜터 role로 회원가입하면 튜터 대시보드로 이동한다', async ({ page }) => {
+    const email = uniqueEmail();
+
+    await registerUser(page, {
+      name: '튜터지원자',
+      email,
+      password: TEST_PASSWORD,
+      role: 'tutor',
+    });
+
+    await expect(page).toHaveURL(/\/dashboard\/tutor/, { timeout: 10000 });
+  });
+
   test('이미 존재하는 이메일로 회원가입 시 에러 메시지가 표시된다', async ({ page }) => {
     const email = uniqueEmail();
 
@@ -23,8 +36,8 @@ test.describe('회원가입', () => {
 
     await registerUser(page, { name: '두번째', email, password: TEST_PASSWORD });
 
-    // Should show error toast
-    await expect(page.getByText('회원가입에 실패했습니다')).toBeVisible({ timeout: 5000 });
+    // Should show duplicate email toast
+    await expect(page.getByText('이미 가입된 이메일입니다. 다른 이메일을 사용해주세요.')).toBeVisible({ timeout: 5000 });
   });
 
   test('유효성 검증 실패 시 에러 메시지가 표시된다', async ({ page }) => {
