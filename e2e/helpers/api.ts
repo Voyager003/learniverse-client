@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api/v1';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
 
 interface AuthTokens {
   accessToken: string;
@@ -25,6 +25,7 @@ export async function apiRegister(data: {
   name: string;
   email: string;
   password: string;
+  role?: 'student' | 'tutor';
 }): Promise<AuthTokens> {
   const res = await fetch(`${API_URL}/auth/register`, {
     method: 'POST',
@@ -49,30 +50,6 @@ export async function apiLogin(data: {
   });
   const json = await assertOk(res, `Login ${data.email}`);
   return json.data as AuthTokens;
-}
-
-/**
- * Promote user to tutor role via direct DB query.
- */
-export async function promoteToTutor(email: string): Promise<void> {
-  const { execSync } = await import('child_process');
-  const sql = `UPDATE users SET role = 'tutor' WHERE email = '${email}';`;
-  execSync(
-    'docker exec -i learniverse-postgres-1 psql -U postgres -d learniverse',
-    { input: sql },
-  );
-}
-
-/**
- * Promote user to admin role via direct DB query.
- */
-export async function promoteToAdmin(email: string): Promise<void> {
-  const { execSync } = await import('child_process');
-  const sql = `UPDATE users SET role = 'admin' WHERE email = '${email}';`;
-  execSync(
-    'docker exec -i learniverse-postgres-1 psql -U postgres -d learniverse',
-    { input: sql },
-  );
 }
 
 /**

@@ -42,9 +42,20 @@ export async function registerUser(
  */
 export async function loginUser(
   page: Page,
-  { email, password }: { email: string; password: string },
+  {
+    email,
+    password,
+    callbackUrl,
+  }: {
+    email: string;
+    password: string;
+    callbackUrl?: string;
+  },
 ) {
-  await page.goto('/login');
+  const loginPath = callbackUrl
+    ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
+    : '/login';
+  await page.goto(loginPath);
   await page.getByLabel('이메일').fill(email);
   await page.getByLabel('비밀번호').fill(password);
   await page.getByRole('button', { name: '로그인' }).click();

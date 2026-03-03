@@ -9,14 +9,14 @@ describe('isProtectedRoute', () => {
     '/admin',
     '/admin/users',
     '/profile',
+    '/courses',
+    '/courses/123',
   ])('%s는 보호 라우트이다', (path) => {
     expect(isProtectedRoute(path)).toBe(true);
   });
 
   it.each([
     '/',
-    '/courses',
-    '/courses/123',
     '/login',
     '/register',
   ])('%s는 보호 라우트가 아니다', (path) => {

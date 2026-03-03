@@ -1,18 +1,18 @@
 import { test, expect } from '@playwright/test';
-import { uniqueEmail, TEST_PASSWORD } from './helpers/auth';
-import { apiRegister, apiLogin, apiCreateCourse, apiPublishCourse, promoteToTutor } from './helpers/api';
+import { uniqueEmail, TEST_PASSWORD, loginUser } from './helpers/auth';
+import { apiRegister, apiLogin, apiCreateCourse, apiPublishCourse } from './helpers/api';
 
 // All tests share seeded data, must run in same worker
 test.describe.configure({ mode: 'serial' });
 
 let courseIds: string[];
+let viewerEmail: string;
 const RUN_ID = Date.now().toString(36);
 
 test.beforeAll(async () => {
   // Seed: register tutor and create courses
   const email = uniqueEmail();
-  await apiRegister({ name: '테스트튜터', email, password: TEST_PASSWORD });
-  await promoteToTutor(email);
+  await apiRegister({ name: '테스트튜터', email, password: TEST_PASSWORD, role: 'tutor' });
   const tokens = await apiLogin({ email, password: TEST_PASSWORD });
   const tutorToken = tokens.accessToken;
 
@@ -29,6 +29,15 @@ test.beforeAll(async () => {
     await apiPublishCourse(tutorToken, created.id);
     courseIds.push(created.id);
   }
+
+  // Seed: register a student account for browsing courses
+  viewerEmail = uniqueEmail();
+  await apiRegister({ name: '카탈로그학생', email: viewerEmail, password: TEST_PASSWORD });
+});
+
+test.beforeEach(async ({ page }) => {
+  await loginUser(page, { email: viewerEmail, password: TEST_PASSWORD });
+  await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
 });
 
 test.describe('강의 카탈로그', () => {

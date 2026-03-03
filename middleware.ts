@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PROTECTED_PREFIXES = ['/dashboard', '/admin', '/profile'];
+const PROTECTED_PREFIXES = ['/dashboard', '/admin', '/profile', '/courses'];
 const AUTH_PREFIXES = ['/login', '/register'];
 const COOKIE_NAME = 'learniverse_has_session';
 
@@ -25,5 +25,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/admin/:path*', '/profile/:path*', '/login', '/register'],
+  matcher: ['/dashboard/:path*', '/admin/:path*', '/profile/:path*', '/courses/:path*', '/login', '/register'],
 };

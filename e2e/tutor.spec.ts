@@ -9,7 +9,6 @@ import {
   apiCreateAssignment,
   apiEnroll,
   apiSubmitAssignment,
-  promoteToTutor,
 } from './helpers/api';
 
 test.describe.configure({ mode: 'serial' });
@@ -23,8 +22,7 @@ let seededAssignmentId: string;
 test.beforeAll(async () => {
   // Register tutor
   tutorEmail = uniqueEmail();
-  await apiRegister({ name: '튜터E2E', email: tutorEmail, password: TEST_PASSWORD });
-  await promoteToTutor(tutorEmail);
+  await apiRegister({ name: '튜터E2E', email: tutorEmail, password: TEST_PASSWORD, role: 'tutor' });
 
   // Create a pre-seeded course with lecture for management tests
   const tutorTokens = await apiLogin({ email: tutorEmail, password: TEST_PASSWORD });

@@ -1,5 +1,5 @@
 /** Routes that require authentication */
-export const PROTECTED_ROUTES = ['/dashboard', '/admin', '/profile'];
+export const PROTECTED_ROUTES = ['/dashboard', '/admin', '/profile', '/courses'];
 
 /** Routes only for unauthenticated users */
 export const AUTH_ROUTES = ['/login', '/register'];

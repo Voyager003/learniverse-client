@@ -116,6 +116,12 @@ test.describe('라우트 보호', () => {
     await expect(page).toHaveURL(/\/login\?callbackUrl=/, { timeout: 5000 });
   });
 
+  test('미인증 사용자가 /courses 접근 시 로그인 페이지로 리다이렉트된다', async ({ page }) => {
+    await page.goto('/courses');
+
+    await expect(page).toHaveURL(/\/login\?callbackUrl=/, { timeout: 5000 });
+  });
+
   test('인증된 사용자가 /login 접근 시 대시보드로 리다이렉트된다', async ({ page }) => {
     const email = uniqueEmail();
 

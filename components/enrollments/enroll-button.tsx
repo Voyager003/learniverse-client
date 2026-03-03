@@ -31,7 +31,7 @@ export function EnrollButton({ courseId }: EnrollButtonProps) {
     try {
       await enroll({ courseId });
       toast.success('수강 신청이 완료되었습니다');
-      router.push('/dashboard/student');
+      router.push('/dashboard');
     } catch {
       toast.error('수강 신청에 실패했습니다');
     }
