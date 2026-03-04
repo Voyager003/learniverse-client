@@ -5,7 +5,6 @@ export interface AssignmentResponse {
   courseId: string;
   courseTitle?: string;
   dueDate: string | null;
-  isPublished: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -20,8 +19,4 @@ export interface UpdateAssignmentRequest {
   title?: string;
   description?: string;
   dueDate?: string;
-}
-
-export interface UpdateAssignmentPublishRequest {
-  isPublished: boolean;
 }
