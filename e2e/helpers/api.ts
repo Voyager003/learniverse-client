@@ -154,6 +154,32 @@ export async function apiCreateAssignment(
 }
 
 /**
+ * Update assignment publish status via backend API.
+ */
+export async function apiPublishAssignment(
+  token: string,
+  courseId: string,
+  assignmentId: string,
+  isPublished = true,
+): Promise<void> {
+  const res = await fetch(
+    `${API_URL}/courses/${courseId}/assignments/${assignmentId}/publish`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ isPublished }),
+    },
+  );
+  await assertOk(
+    res,
+    `${isPublished ? 'Publish' : 'Unpublish'}Assignment ${assignmentId}`,
+  );
+}
+
+/**
  * Submit an assignment as a student via backend API.
  */
 export async function apiSubmitAssignment(

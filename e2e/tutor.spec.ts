@@ -7,6 +7,7 @@ import {
   apiPublishCourse,
   apiCreateLecture,
   apiCreateAssignment,
+  apiPublishAssignment,
   apiEnroll,
   apiSubmitAssignment,
 } from './helpers/api';
@@ -51,6 +52,12 @@ test.beforeAll(async () => {
     description: '피드백 테스트용 과제',
   });
   seededAssignmentId = assignment.id;
+  await apiPublishAssignment(
+    tutorAccessToken,
+    seededCourseId,
+    seededAssignmentId,
+    true,
+  );
 
   // Register student, enroll, submit
   const studentEmail = uniqueEmail();
