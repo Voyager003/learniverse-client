@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { LogOut, User } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,8 @@ import {
 import { useAuth } from '@/lib/hooks/use-auth';
 
 export function UserMenu() {
-  const { user, logout } = useAuth();
+  const router = useRouter();
+  const { user, logout, isLoggingOut } = useAuth();
 
   if (!user) return null;
 
@@ -25,10 +27,24 @@ export function UserMenu() {
     .toUpperCase()
     .slice(0, 2);
 
+  async function handleLogout() {
+    try {
+      await logout();
+    } catch {
+      // Local auth state is already cleared in useAuth.logout.
+    }
+    router.push('/login');
+    router.refresh();
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+        <Button
+          variant="ghost"
+          className="relative h-9 w-9 rounded-full"
+          aria-label="사용자 메뉴"
+        >
           <Avatar className="h-9 w-9">
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
@@ -53,7 +69,7 @@ export function UserMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => logout()}>
+        <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut}>
           <LogOut className="mr-2 h-4 w-4" />
           로그아웃
         </DropdownMenuItem>

@@ -196,6 +196,33 @@ describe('useAuth', () => {
 
       expect(mockHydrate).toHaveBeenCalled();
       expect(mockGetMe).not.toHaveBeenCalled();
+      expect(mockClearAuth).toHaveBeenCalled();
+    });
+
+    it('세션 복원 실패 시 인증 상태를 정리한다', async () => {
+      mockStoreState.refreshToken = 'stored-refresh';
+      mockGetMe.mockRejectedValueOnce(new Error('Unauthorized'));
+
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+
+      await act(async () => {
+        await result.current.initialize();
+      });
+
+      expect(mockHydrate).toHaveBeenCalled();
+      expect(mockGetMe).toHaveBeenCalled();
+      expect(mockClearAuth).toHaveBeenCalled();
+    });
+  });
+
+  describe('logout 실패 처리', () => {
+    it('로그아웃 API 실패여도 로컬 인증 상태를 정리한다', async () => {
+      mockLogout.mockRejectedValueOnce(new Error('Network error'));
+
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+
+      await expect(result.current.logout()).rejects.toThrow('Network error');
+      expect(mockClearAuth).toHaveBeenCalled();
     });
   });
 });

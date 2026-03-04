@@ -9,9 +9,14 @@ import { LoadingSpinner } from '@/components/shared/loading-spinner';
 export default function DashboardPage() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
+  const isAuthInitialized = useAuthStore((s) => s.isAuthInitialized);
 
   useEffect(() => {
-    if (!user) return;
+    if (!isAuthInitialized) return;
+    if (!user) {
+      router.replace('/login');
+      return;
+    }
 
     switch (user.role) {
       case Role.ADMIN:
@@ -23,7 +28,7 @@ export default function DashboardPage() {
       default:
         router.replace('/dashboard/student');
     }
-  }, [user, router]);
+  }, [isAuthInitialized, user, router]);
 
   return <LoadingSpinner className="min-h-[50vh]" size="lg" />;
 }

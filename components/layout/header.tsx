@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { MobileNav } from '@/components/layout/mobile-nav';
 import { UserMenu } from '@/components/layout/user-menu';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useAuthStore } from '@/lib/store/auth-store';
 
 const NAV_ITEMS = [
@@ -13,6 +14,7 @@ const NAV_ITEMS = [
 
 export function Header() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isAuthInitialized = useAuthStore((s) => s.isAuthInitialized);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -41,7 +43,12 @@ export function Header() {
         {/* Right side */}
         <div className="ml-auto flex items-center gap-2">
           <ThemeToggle />
-          {isAuthenticated ? (
+          {!isAuthInitialized ? (
+            <div data-testid="auth-status-skeleton" className="flex items-center gap-2">
+              <Skeleton className="h-8 w-16" />
+              <Skeleton className="hidden h-8 w-20 sm:block" />
+            </div>
+          ) : isAuthenticated ? (
             <UserMenu />
           ) : (
             <div className="flex items-center gap-1 sm:gap-2">

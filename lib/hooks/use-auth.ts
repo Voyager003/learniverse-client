@@ -8,7 +8,7 @@ import { useAuthStore } from '@/lib/store/auth-store';
 import type { LoginRequest, RegisterRequest } from '@/lib/types';
 
 export function useAuth() {
-  const { user, isAuthenticated, setAuth, clearAuth, hydrateFromStorage } =
+  const { user, isAuthenticated, isAuthInitialized, setAuth, clearAuth, hydrateFromStorage } =
     useAuthStore();
 
   const loginMutation = useMutation({
@@ -34,15 +34,21 @@ export function useAuth() {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await authApi.logout();
-      clearAuth();
+      try {
+        await authApi.logout();
+      } finally {
+        clearAuth();
+      }
     },
   });
 
   const initialize = useCallback(async () => {
     hydrateFromStorage();
     const token = useAuthStore.getState().refreshToken;
-    if (!token) return;
+    if (!token) {
+      clearAuth();
+      return;
+    }
 
     try {
       const me = await usersApi.getMe();
@@ -56,6 +62,7 @@ export function useAuth() {
   return {
     user,
     isAuthenticated,
+    isAuthInitialized,
     login: loginMutation.mutateAsync,
     register: registerMutation.mutateAsync,
     logout: logoutMutation.mutateAsync,

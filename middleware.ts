@@ -9,6 +9,11 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const hasSession = request.cookies.get(COOKIE_NAME)?.value === 'true';
 
+  // Authenticated user visiting home → redirect to dashboard
+  if (hasSession && pathname === '/') {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
   // Authenticated user visiting auth pages → redirect to dashboard
   if (hasSession && AUTH_PREFIXES.some((p) => pathname.startsWith(p))) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
@@ -25,5 +30,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/admin/:path*', '/profile/:path*', '/courses/:path*', '/login', '/register'],
+  matcher: ['/', '/dashboard/:path*', '/admin/:path*', '/profile/:path*', '/courses/:path*', '/login', '/register'],
 };

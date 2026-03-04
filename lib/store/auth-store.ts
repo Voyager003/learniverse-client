@@ -19,6 +19,7 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
+  isAuthInitialized: boolean;
   setAuth: (user: UserResponse, accessToken: string, refreshToken: string) => void;
   setTokens: (accessToken: string, refreshToken: string) => void;
   clearAuth: () => void;
@@ -30,11 +31,12 @@ export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   refreshToken: null,
   isAuthenticated: false,
+  isAuthInitialized: false,
 
   setAuth: (user, accessToken, refreshToken) => {
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
     setSessionCookie();
-    set({ user, accessToken, refreshToken, isAuthenticated: true });
+    set({ user, accessToken, refreshToken, isAuthenticated: true, isAuthInitialized: true });
   },
 
   setTokens: (accessToken, refreshToken) => {
@@ -45,7 +47,13 @@ export const useAuthStore = create<AuthState>((set) => ({
   clearAuth: () => {
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     clearSessionCookie();
-    set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
+    set({
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      isAuthenticated: false,
+      isAuthInitialized: true,
+    });
   },
 
   hydrateFromStorage: () => {

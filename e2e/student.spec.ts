@@ -7,7 +7,6 @@ import {
   apiPublishCourse,
   apiCreateLecture,
   apiEnroll,
-  promoteToTutor,
 } from './helpers/api';
 
 test.describe.configure({ mode: 'serial' });
@@ -20,8 +19,7 @@ let enrolledStudentEmail: string;
 test.beforeAll(async () => {
   // Seed: create tutor with a published course + 3 lectures
   const tutorEmail = uniqueEmail();
-  await apiRegister({ name: '튜터', email: tutorEmail, password: TEST_PASSWORD });
-  await promoteToTutor(tutorEmail);
+  await apiRegister({ name: '튜터', email: tutorEmail, password: TEST_PASSWORD, role: 'tutor' });
   const tutorTokens = await apiLogin({ email: tutorEmail, password: TEST_PASSWORD });
   const tutorToken = tutorTokens.accessToken;
 
@@ -60,11 +58,7 @@ test.beforeAll(async () => {
 test.describe('수강 신청', () => {
   test('비로그인 사용자는 로그인 페이지로 리다이렉트된다', async ({ page }) => {
     await page.goto(`/courses/${courseId}`);
-
-    await expect(page.getByRole('button', { name: '로그인 후 수강 신청' })).toBeVisible({ timeout: 10000 });
-    await page.getByRole('button', { name: '로그인 후 수강 신청' }).click();
-
-    await expect(page).toHaveURL(/\/login/);
+    await expect(page).toHaveURL(/\/login\?callbackUrl=/, { timeout: 10000 });
   });
 
   test('로그인한 학생이 수강 신청할 수 있다', async ({ page }) => {

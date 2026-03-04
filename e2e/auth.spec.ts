@@ -93,9 +93,11 @@ test.describe('로그아웃', () => {
     // Register and land on dashboard
     await registerUser(page, { name: '로그아웃테스트', email, password: TEST_PASSWORD });
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+    await page.goto('/courses');
+    await expect(page).toHaveURL(/\/courses/, { timeout: 10000 });
 
     // Open user menu (avatar button) and click logout
-    await page.locator('button.rounded-full').click();
+    await page.getByRole('button', { name: '사용자 메뉴' }).click();
     await page.getByRole('menuitem', { name: '로그아웃' }).click();
 
     // Should show login button in header
@@ -130,6 +132,28 @@ test.describe('라우트 보호', () => {
 
     // Try to visit login page while authenticated
     await page.goto('/login');
+
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 5000 });
+  });
+
+  test('인증된 사용자가 /register 접근 시 대시보드로 리다이렉트된다', async ({ page }) => {
+    const email = uniqueEmail();
+
+    await registerUser(page, { name: '리다이렉트테스트2', email, password: TEST_PASSWORD });
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+
+    await page.goto('/register');
+
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 5000 });
+  });
+
+  test('인증된 사용자가 / 접근 시 대시보드로 리다이렉트된다', async ({ page }) => {
+    const email = uniqueEmail();
+
+    await registerUser(page, { name: '홈리다이렉트', email, password: TEST_PASSWORD });
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+
+    await page.goto('/');
 
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 5000 });
   });

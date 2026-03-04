@@ -45,6 +45,8 @@ describe('useAuthStore', () => {
       user: null,
       accessToken: null,
       refreshToken: null,
+      isAuthenticated: false,
+      isAuthInitialized: false,
     });
     localStorageMock.clear();
     cookieJar = '';
@@ -59,6 +61,7 @@ describe('useAuthStore', () => {
       expect(state.accessToken).toBeNull();
       expect(state.refreshToken).toBeNull();
       expect(state.isAuthenticated).toBe(false);
+      expect(state.isAuthInitialized).toBe(false);
     });
   });
 
@@ -71,6 +74,7 @@ describe('useAuthStore', () => {
       expect(state.accessToken).toBe('access-123');
       expect(state.refreshToken).toBe('refresh-456');
       expect(state.isAuthenticated).toBe(true);
+      expect(state.isAuthInitialized).toBe(true);
     });
 
     it('refresh token을 localStorage에 영속화한다', () => {
@@ -120,6 +124,7 @@ describe('useAuthStore', () => {
       expect(state.accessToken).toBeNull();
       expect(state.refreshToken).toBeNull();
       expect(state.isAuthenticated).toBe(false);
+      expect(state.isAuthInitialized).toBe(true);
     });
 
     it('localStorage에서 refresh token을 제거한다', () => {
