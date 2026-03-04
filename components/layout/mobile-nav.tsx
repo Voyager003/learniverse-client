@@ -15,6 +15,7 @@ import {
 interface NavItem {
   label: string;
   href: string;
+  prefetch?: boolean;
 }
 
 interface MobileNavProps {
@@ -44,6 +45,7 @@ export function MobileNav({ items }: MobileNavProps) {
             <Link
               key={item.href}
               href={item.href}
+              prefetch={item.prefetch}
               onClick={() => setOpen(false)}
               className="rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
             >

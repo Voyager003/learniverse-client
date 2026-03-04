@@ -4,8 +4,13 @@ import { render, screen } from '@testing-library/react';
 const mockUseAuthStore = vi.fn();
 
 vi.mock('next/link', () => ({
-  default: ({ children, href, ...props }: React.ComponentProps<'a'>) => (
-    <a href={href} {...props}>
+  default: ({
+    children,
+    href,
+    prefetch,
+    ...props
+  }: React.ComponentProps<'a'> & { prefetch?: boolean }) => (
+    <a href={href} data-prefetch={prefetch === false ? 'false' : 'true'} {...props}>
       {children}
     </a>
   ),
@@ -69,5 +74,16 @@ describe('Header', () => {
     expect(screen.getByTestId('user-menu')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: '로그인' })).not.toBeInTheDocument();
   });
-});
 
+  it('강의 탐색 링크는 prefetch가 비활성화된다', () => {
+    mockUseAuthStore.mockReturnValue({
+      isAuthenticated: false,
+      isAuthInitialized: true,
+    });
+
+    render(<Header />);
+
+    const coursesLink = screen.getByRole('link', { name: '강의 탐색' });
+    expect(coursesLink).toHaveAttribute('data-prefetch', 'false');
+  });
+});

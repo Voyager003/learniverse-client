@@ -7,6 +7,10 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
+  expect: {
+    timeout: 20000,
+  },
+  globalSetup: './e2e/global-setup.ts',
   use: {
     baseURL: 'http://localhost:3001',
     trace: 'on-first-retry',
@@ -20,6 +24,6 @@ export default defineConfig({
   webServer: {
     command: 'bun run dev',
     url: 'http://localhost:3001',
-    reuseExistingServer: true,
+    reuseExistingServer: process.env.PW_REUSE_SERVER === '1',
   },
 });

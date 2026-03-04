@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuthStore } from '@/lib/store/auth-store';
 
 const NAV_ITEMS = [
-  { label: '강의 탐색', href: '/courses' },
+  { label: '강의 탐색', href: '/courses', prefetch: false },
 ];
 
 export function Header() {
@@ -33,6 +33,7 @@ export function Header() {
             <Link
               key={item.href}
               href={item.href}
+              prefetch={item.prefetch}
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               {item.label}

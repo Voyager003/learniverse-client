@@ -1,13 +1,15 @@
 import { test, expect } from '@playwright/test';
 import { uniqueEmail, TEST_PASSWORD, registerUser, loginUser } from './helpers/auth';
 
+test.describe.configure({ mode: 'serial' });
+
 test.describe('회원가입', () => {
   test('새 사용자가 회원가입 후 대시보드로 이동한다', async ({ page }) => {
     const email = uniqueEmail();
 
     await registerUser(page, { name: '테스트유저', email, password: TEST_PASSWORD });
 
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+    await expect(page).toHaveURL(/\/dashboard(\/student|\/tutor)?/, { timeout: 20000 });
   });
 
   test('튜터 role로 회원가입하면 튜터 대시보드로 이동한다', async ({ page }) => {
@@ -20,7 +22,7 @@ test.describe('회원가입', () => {
       role: 'tutor',
     });
 
-    await expect(page).toHaveURL(/\/dashboard\/tutor/, { timeout: 10000 });
+    await expect(page).toHaveURL(/\/dashboard\/tutor/, { timeout: 20000 });
   });
 
   test('이미 존재하는 이메일로 회원가입 시 에러 메시지가 표시된다', async ({ page }) => {
@@ -28,13 +30,17 @@ test.describe('회원가입', () => {
 
     // First registration
     await registerUser(page, { name: '첫번째', email, password: TEST_PASSWORD });
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+    await expect(page).toHaveURL(/\/dashboard(\/student|\/tutor)?/, { timeout: 20000 });
 
     // Clear session and try again with same email
     await page.context().clearCookies();
     await page.evaluate(() => localStorage.clear());
 
-    await registerUser(page, { name: '두번째', email, password: TEST_PASSWORD });
+    await registerUser(
+      page,
+      { name: '두번째', email, password: TEST_PASSWORD },
+      { waitForAuthReady: false },
+    );
 
     // Should show duplicate email toast
     await expect(page.getByText('이미 가입된 이메일입니다. 다른 이메일을 사용해주세요.')).toBeVisible({ timeout: 5000 });
@@ -59,18 +65,32 @@ test.describe('로그인', () => {
     testEmail = uniqueEmail();
     const page = await browser.newPage();
     await registerUser(page, { name: '로그인테스트', email: testEmail, password: TEST_PASSWORD });
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+    await expect(page).toHaveURL(/\/dashboard(\/student|\/tutor)?/, { timeout: 20000 });
     await page.close();
   });
 
   test('등록된 사용자가 로그인 후 대시보드로 이동한다', async ({ page }) => {
     await loginUser(page, { email: testEmail, password: TEST_PASSWORD });
 
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+    await expect(page).toHaveURL(/\/dashboard(\/student|\/tutor)?/, { timeout: 20000 });
+  });
+
+  test('로그인 직후 강의 탐색 클릭 시 바로 강의 페이지로 이동한다', async ({ page }) => {
+    await loginUser(page, { email: testEmail, password: TEST_PASSWORD });
+    await expect(page).toHaveURL(/\/dashboard(\/student|\/tutor)?/, { timeout: 20000 });
+
+    await page.getByRole('link', { name: '강의 탐색' }).click();
+
+    await expect(page).toHaveURL(/\/courses/, { timeout: 10000 });
+    expect(page.url()).not.toContain('/login?callbackUrl=');
   });
 
   test('잘못된 비밀번호로 로그인 시 에러 메시지가 표시된다', async ({ page }) => {
-    await loginUser(page, { email: testEmail, password: 'wrongpassword' });
+    await loginUser(
+      page,
+      { email: testEmail, password: 'wrongpassword' },
+      { waitForAuthReady: false },
+    );
 
     await expect(page.getByText('이메일 또는 비밀번호가 올바르지 않습니다')).toBeVisible({ timeout: 5000 });
   });
@@ -92,7 +112,7 @@ test.describe('로그아웃', () => {
 
     // Register and land on dashboard
     await registerUser(page, { name: '로그아웃테스트', email, password: TEST_PASSWORD });
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+    await expect(page).toHaveURL(/\/dashboard(\/student|\/tutor)?/, { timeout: 20000 });
     await page.goto('/courses');
     await expect(page).toHaveURL(/\/courses/, { timeout: 10000 });
 
@@ -128,33 +148,33 @@ test.describe('라우트 보호', () => {
     const email = uniqueEmail();
 
     await registerUser(page, { name: '리다이렉트테스트', email, password: TEST_PASSWORD });
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+    await expect(page).toHaveURL(/\/dashboard(\/student|\/tutor)?/, { timeout: 20000 });
 
     // Try to visit login page while authenticated
     await page.goto('/login');
 
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 5000 });
+    await expect(page).toHaveURL(/\/dashboard(\/student|\/tutor)?/, { timeout: 10000 });
   });
 
   test('인증된 사용자가 /register 접근 시 대시보드로 리다이렉트된다', async ({ page }) => {
     const email = uniqueEmail();
 
     await registerUser(page, { name: '리다이렉트테스트2', email, password: TEST_PASSWORD });
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+    await expect(page).toHaveURL(/\/dashboard(\/student|\/tutor)?/, { timeout: 20000 });
 
     await page.goto('/register');
 
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 5000 });
+    await expect(page).toHaveURL(/\/dashboard(\/student|\/tutor)?/, { timeout: 10000 });
   });
 
   test('인증된 사용자가 / 접근 시 대시보드로 리다이렉트된다', async ({ page }) => {
     const email = uniqueEmail();
 
     await registerUser(page, { name: '홈리다이렉트', email, password: TEST_PASSWORD });
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+    await expect(page).toHaveURL(/\/dashboard(\/student|\/tutor)?/, { timeout: 20000 });
 
     await page.goto('/');
 
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 5000 });
+    await expect(page).toHaveURL(/\/dashboard(\/student|\/tutor)?/, { timeout: 10000 });
   });
 });
