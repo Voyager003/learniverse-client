@@ -89,6 +89,14 @@ export default function EnrollmentDetailPage({ params }: EnrollmentDetailPagePro
         <div className="mt-4 max-w-md">
           <ProgressBar progress={enrollment.progress} />
         </div>
+        <div className="mt-4">
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/courses/${enrollment.courseId}/assignments`)}
+          >
+            과제 보기
+          </Button>
+        </div>
       </div>
 
       <Separator className="mb-8" />

@@ -112,6 +112,17 @@ test.describe('학생 대시보드', () => {
 
     await openEnrollmentDetail(page, `${RUN_ID} 학생여정 강의`);
   });
+
+  test('진도 상세에서 과제 보기 버튼을 누르면 과제 페이지로 이동한다', async ({ page }) => {
+    await loginUser(page, { email: enrolledStudentEmail, password: TEST_PASSWORD });
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+
+    await openEnrollmentDetail(page, `${RUN_ID} 학생여정 강의`);
+
+    await page.getByRole('button', { name: '과제 보기' }).click();
+    await expect(page).toHaveURL(new RegExp(`/courses/${courseId}/assignments`), { timeout: 10000 });
+    await expect(page.getByRole('heading', { level: 1, name: '과제' })).toBeVisible({ timeout: 10000 });
+  });
 });
 
 test.describe('진도 관리', () => {

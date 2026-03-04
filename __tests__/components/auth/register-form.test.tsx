@@ -38,6 +38,72 @@ vi.mock('@/lib/hooks/use-auth', () => ({
   }),
 }));
 
+vi.mock('@/components/ui/select', async () => {
+  const React = await import('react');
+
+  type SelectContextValue = {
+    value?: string;
+    onValueChange?: (value: string) => void;
+  };
+
+  const SelectContext = React.createContext<SelectContextValue>({});
+
+  function Select({
+    value,
+    onValueChange,
+    children,
+  }: {
+    value?: string;
+    onValueChange?: (value: string) => void;
+    children: React.ReactNode;
+  }) {
+    return (
+      <SelectContext.Provider value={{ value, onValueChange }}>
+        {children}
+      </SelectContext.Provider>
+    );
+  }
+
+  function SelectTrigger({
+    className,
+  }: {
+    className?: string;
+  }) {
+    const { value = 'student', onValueChange } = React.useContext(SelectContext);
+    return (
+      <select
+        aria-label="역할"
+        className={className}
+        value={value}
+        onChange={(event) => onValueChange?.(event.target.value)}
+      >
+        <option value="student">학생</option>
+        <option value="tutor">튜터</option>
+      </select>
+    );
+  }
+
+  function SelectValue() {
+    return null;
+  }
+
+  function SelectContent({ children }: { children: React.ReactNode }) {
+    return <>{children}</>;
+  }
+
+  function SelectItem({ children }: { children: React.ReactNode }) {
+    return <>{children}</>;
+  }
+
+  return {
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+  };
+});
+
 import { RegisterForm } from '@/components/auth/register-form';
 
 if (!HTMLElement.prototype.hasPointerCapture) {
@@ -55,9 +121,22 @@ if (!HTMLElement.prototype.scrollIntoView) {
 
 async function fillRequiredFields() {
   const user = userEvent.setup();
-  await user.type(screen.getByLabelText('이름'), '테스트유저');
-  await user.type(screen.getByLabelText('이메일'), 'test@example.com');
-  await user.type(screen.getByLabelText('비밀번호'), 'password123');
+  const nameInput = screen.getByLabelText('이름');
+  const emailInput = screen.getByLabelText('이메일');
+  const passwordInput = screen.getByLabelText('비밀번호');
+
+  await user.clear(nameInput);
+  await user.type(nameInput, '테스트유저');
+  await expect(nameInput).toHaveValue('테스트유저');
+
+  await user.clear(emailInput);
+  await user.type(emailInput, 'test@example.com');
+  await expect(emailInput).toHaveValue('test@example.com');
+
+  await user.clear(passwordInput);
+  await user.type(passwordInput, 'password123');
+  await expect(passwordInput).toHaveValue('password123');
+
   return user;
 }
 
@@ -76,13 +155,12 @@ describe('RegisterForm', () => {
     const user = await fillRequiredFields();
     await user.click(screen.getByRole('button', { name: '회원가입' }));
 
-    await waitFor(() => {
-      expect(mockRegister).toHaveBeenCalledWith({
-        name: '테스트유저',
-        email: 'test@example.com',
-        password: 'password123',
-        role: 'student',
-      });
+    await waitFor(() => expect(mockRegister).toHaveBeenCalledTimes(1));
+    expect(mockRegister).toHaveBeenCalledWith({
+      name: '테스트유저',
+      email: 'test@example.com',
+      password: 'password123',
+      role: 'student',
     });
   });
 
@@ -92,17 +170,16 @@ describe('RegisterForm', () => {
 
     const user = await fillRequiredFields();
 
-    await user.click(screen.getByRole('combobox', { name: '역할' }));
-    await user.click(await screen.findByRole('option', { name: '튜터' }));
+    await user.selectOptions(screen.getByRole('combobox', { name: '역할' }), 'tutor');
+    await expect(screen.getByRole('combobox', { name: '역할' })).toHaveValue('tutor');
     await user.click(screen.getByRole('button', { name: '회원가입' }));
 
-    await waitFor(() => {
-      expect(mockRegister).toHaveBeenCalledWith({
-        name: '테스트유저',
-        email: 'test@example.com',
-        password: 'password123',
-        role: 'tutor',
-      });
+    await waitFor(() => expect(mockRegister).toHaveBeenCalledTimes(1));
+    expect(mockRegister).toHaveBeenCalledWith({
+      name: '테스트유저',
+      email: 'test@example.com',
+      password: 'password123',
+      role: 'tutor',
     });
   });
 
