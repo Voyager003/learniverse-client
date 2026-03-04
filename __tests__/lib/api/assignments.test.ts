@@ -1,17 +1,15 @@
 import { describe, it, expect, vi } from 'vitest';
 import type { AssignmentResponse } from '@/lib/types';
 
-const { mockGet, mockPost, mockPatch } = vi.hoisted(() => ({
+const { mockGet, mockPost } = vi.hoisted(() => ({
   mockGet: vi.fn(),
   mockPost: vi.fn(),
-  mockPatch: vi.fn(),
 }));
 
 vi.mock('@/lib/api/client', () => ({
   apiClient: {
     get: mockGet,
     post: mockPost,
-    patch: mockPatch,
   },
 }));
 
@@ -24,7 +22,6 @@ const mockAssignment: AssignmentResponse = {
   courseId: 'course-1',
   courseTitle: 'React 기초',
   dueDate: '2026-03-01T00:00:00.000Z',
-  isPublished: false,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
 };
@@ -50,26 +47,6 @@ describe('assignmentsApi', () => {
 
       expect(mockPost).toHaveBeenCalledWith('/courses/course-1/assignments', body);
       expect(result).toEqual(mockAssignment);
-    });
-  });
-
-  describe('updatePublishStatus', () => {
-    it('과제 공개 상태를 변경한다', async () => {
-      const body = { isPublished: true };
-      const publishedAssignment = { ...mockAssignment, isPublished: true };
-      mockPatch.mockResolvedValueOnce(publishedAssignment);
-
-      const result = await assignmentsApi.updatePublishStatus(
-        'course-1',
-        'assign-1',
-        body,
-      );
-
-      expect(mockPatch).toHaveBeenCalledWith(
-        '/courses/course-1/assignments/assign-1/publish',
-        body,
-      );
-      expect(result).toEqual(publishedAssignment);
     });
   });
 });

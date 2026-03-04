@@ -6,20 +6,13 @@ import { toast } from 'sonner';
 import { ArrowLeft, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/shared/loading-spinner';
 import { EmptyState } from '@/components/shared/empty-state';
 import { AssignmentCard } from '@/components/assignments/assignment-card';
 import { AssignmentForm } from '@/components/assignments/assignment-form';
-import {
-  useAssignments,
-  useCreateAssignment,
-  useUpdateAssignmentPublish,
-} from '@/lib/hooks/use-assignments';
+import { useAssignments, useCreateAssignment } from '@/lib/hooks/use-assignments';
 import type { AssignmentFormValues } from '@/lib/utils/validators';
-import type { AssignmentResponse } from '@/lib/types';
 
 interface TutorAssignmentsPageProps {
   params: Promise<{ id: string }>;
@@ -30,7 +23,6 @@ export default function TutorAssignmentsPage({ params }: TutorAssignmentsPagePro
   const router = useRouter();
   const { data: assignments, isLoading } = useAssignments(courseId);
   const { mutateAsync: createAssignment, isPending } = useCreateAssignment(courseId);
-  const { mutateAsync: updatePublish, isPending: isPublishing } = useUpdateAssignmentPublish(courseId);
   const [showForm, setShowForm] = useState(false);
 
   if (isLoading) {
@@ -48,22 +40,6 @@ export default function TutorAssignmentsPage({ params }: TutorAssignmentsPagePro
       setShowForm(false);
     } catch {
       toast.error('과제 출제에 실패했습니다');
-    }
-  }
-
-  async function handleTogglePublish(assignment: AssignmentResponse) {
-    try {
-      await updatePublish({
-        assignmentId: assignment.id,
-        body: { isPublished: !assignment.isPublished },
-      });
-      toast.success(
-        assignment.isPublished
-          ? '과제가 비공개로 전환되었습니다'
-          : '과제가 공개되었습니다',
-      );
-    } catch {
-      toast.error('과제 공개 상태 변경에 실패했습니다');
     }
   }
 
@@ -119,25 +95,11 @@ export default function TutorAssignmentsPage({ params }: TutorAssignmentsPagePro
               key={assignment.id}
               assignment={assignment}
               actions={
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      id={`assignment-publish-${assignment.id}`}
-                      aria-label={`${assignment.title} 공개 상태`}
-                      checked={assignment.isPublished}
-                      onCheckedChange={() => handleTogglePublish(assignment)}
-                      disabled={isPublishing}
-                    />
-                    <Label htmlFor={`assignment-publish-${assignment.id}`} className="text-xs">
-                      {assignment.isPublished ? '공개' : '비공개'}
-                    </Label>
-                  </div>
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/tutor/courses/${courseId}/submissions?assignmentId=${assignment.id}`}>
-                      제출물 보기
-                    </Link>
-                  </Button>
-                </div>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/dashboard/tutor/courses/${courseId}/submissions?assignmentId=${assignment.id}`}>
+                    제출물 보기
+                  </Link>
+                </Button>
               }
             />
           ))}

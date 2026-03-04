@@ -7,7 +7,6 @@ import {
   apiPublishCourse,
   apiCreateLecture,
   apiCreateAssignment,
-  apiPublishAssignment,
   apiEnroll,
   apiSubmitAssignment,
 } from './helpers/api';
@@ -20,7 +19,6 @@ let tutorAccessToken: string;
 // Pre-seeded course for lecture/assignment/submission tests
 let seededCourseId: string;
 let seededAssignmentId: string;
-let releaseDraftTitle: string;
 
 test.beforeAll(async () => {
   // Register tutor
@@ -53,13 +51,6 @@ test.beforeAll(async () => {
     description: '피드백 테스트용 과제',
   });
   seededAssignmentId = assignment.id;
-  await apiPublishAssignment(tutorAccessToken, seededCourseId, seededAssignmentId, true);
-
-  releaseDraftTitle = `${RUN_ID} 공개전환 과제`;
-  await apiCreateAssignment(tutorAccessToken, seededCourseId, {
-    title: releaseDraftTitle,
-    description: '출시 토글 테스트용 초안 과제',
-  });
 
   // Register student, enroll, submit
   const studentEmail = uniqueEmail();
@@ -226,30 +217,6 @@ test.describe('과제 관리', () => {
 
     // New assignment should appear
     await expect(page.getByText(`${RUN_ID} UI 과제`)).toBeVisible({ timeout: 10000 });
-  });
-
-  test('draft 과제를 공개 상태로 전환할 수 있다', async ({ page }) => {
-    await loginUser(page, { email: tutorEmail, password: TEST_PASSWORD });
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
-
-    await page.getByRole('link', { name: '내 강의' }).first().click();
-    await page
-      .locator(`a[href="/dashboard/tutor/courses/${seededCourseId}/assignments"]`)
-      .first()
-      .click();
-
-    const assignmentCard = page.locator('article, [class*="card"]', {
-      has: page.getByText(releaseDraftTitle),
-    });
-    await expect(assignmentCard.getByText('비공개')).toBeVisible({ timeout: 10000 });
-
-    await assignmentCard
-      .getByRole('switch', { name: `${releaseDraftTitle} 공개 상태` })
-      .click();
-
-    await expect(assignmentCard.getByText('공개', { exact: true })).toBeVisible({
-      timeout: 10000,
-    });
   });
 });
 
