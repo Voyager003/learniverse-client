@@ -6,6 +6,8 @@ import {
   apiCreateCourse,
   apiPublishCourse,
   apiCreateLecture,
+  apiCreateAssignment,
+  apiPublishAssignment,
   apiEnroll,
 } from './helpers/api';
 
@@ -15,6 +17,7 @@ const RUN_ID = Date.now().toString(36);
 let courseId: string;
 let studentEmail: string;
 let enrolledStudentEmail: string;
+let publishedAssignmentTitle: string;
 
 async function openEnrollmentDetail(page: import('@playwright/test').Page, courseTitle: string) {
   const enrollmentLink = page
@@ -51,6 +54,13 @@ test.beforeAll(async () => {
   }
 
   await apiPublishCourse(tutorToken, courseId);
+
+  publishedAssignmentTitle = `${RUN_ID} 학생 과제`;
+  const publishedAssignment = await apiCreateAssignment(tutorToken, courseId, {
+    title: publishedAssignmentTitle,
+    description: '학생 제출 플로우 테스트 과제',
+  });
+  await apiPublishAssignment(tutorToken, courseId, publishedAssignment.id, true);
 
   // Student for enrollment UI test (not pre-enrolled)
   studentEmail = uniqueEmail();
@@ -147,5 +157,34 @@ test.describe('진도 관리', () => {
 
     await page.getByRole('button', { name: '완료' }).first().click();
     await expect(page.getByText('100%')).toBeVisible({ timeout: 10000 });
+  });
+});
+
+test.describe('과제 제출', () => {
+  test('수강 상세에서 과제 페이지로 이동해 과제를 제출할 수 있다', async ({ page }) => {
+    await loginUser(page, { email: enrolledStudentEmail, password: TEST_PASSWORD });
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+
+    await openEnrollmentDetail(page, `${RUN_ID} 학생여정 강의`);
+    await page.getByRole('button', { name: '과제 보기' }).click();
+
+    await expect(page).toHaveURL(new RegExp(`/courses/${courseId}/assignments`), {
+      timeout: 10000,
+    });
+    await expect(page.getByRole('heading', { name: '과제' })).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(page.getByText(publishedAssignmentTitle)).toBeVisible({
+      timeout: 10000,
+    });
+
+    await page.getByRole('button', { name: '과제 제출하기' }).click();
+    await page.getByLabel('답안').fill(`${RUN_ID} 학생 과제 제출 답안`);
+    await page.getByRole('button', { name: '제출' }).click();
+
+    await expect(page.getByText('내 제출')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(`${RUN_ID} 학생 과제 제출 답안`)).toBeVisible({
+      timeout: 10000,
+    });
   });
 });
