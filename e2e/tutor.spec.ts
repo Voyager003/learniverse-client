@@ -15,6 +15,7 @@ test.describe.configure({ mode: 'serial' });
 
 const RUN_ID = Date.now().toString(36);
 let tutorEmail: string;
+let tutorAccessToken: string;
 // Pre-seeded course for lecture/assignment/submission tests
 let seededCourseId: string;
 let seededAssignmentId: string;
@@ -26,26 +27,26 @@ test.beforeAll(async () => {
 
   // Create a pre-seeded course with lecture for management tests
   const tutorTokens = await apiLogin({ email: tutorEmail, password: TEST_PASSWORD });
-  const tutorToken = tutorTokens.accessToken;
+  tutorAccessToken = tutorTokens.accessToken;
 
-  const course = await apiCreateCourse(tutorToken, {
+  const course = await apiCreateCourse(tutorAccessToken, {
     title: `${RUN_ID} 시드 강의`,
     description: '레슨/과제 관리 테스트용 강의',
     category: 'programming',
     difficulty: 'beginner',
   });
   seededCourseId = course.id;
-  await apiPublishCourse(tutorToken, seededCourseId);
+  await apiPublishCourse(tutorAccessToken, seededCourseId);
 
   // Seed a lecture for delete test
-  await apiCreateLecture(tutorToken, seededCourseId, {
+  await apiCreateLecture(tutorAccessToken, seededCourseId, {
     title: `${RUN_ID} 삭제용 레슨`,
     content: '이 레슨은 삭제 테스트에 사용됩니다.',
     order: 1,
   });
 
   // Seed an assignment + student submission for feedback test
-  const assignment = await apiCreateAssignment(tutorToken, seededCourseId, {
+  const assignment = await apiCreateAssignment(tutorAccessToken, seededCourseId, {
     title: `${RUN_ID} 시드 과제`,
     description: '피드백 테스트용 과제',
   });
@@ -65,7 +66,7 @@ test.beforeAll(async () => {
 });
 
 test.describe('강의 생성', () => {
-  test('새 강의를 생성하면 튜터 대시보드로 리다이렉트된다', async ({ page }) => {
+  test('새 강의를 생성하면 기본값으로 즉시 공개되어 튜터 대시보드에 표시된다', async ({ page }) => {
     await loginUser(page, { email: tutorEmail, password: TEST_PASSWORD });
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
 
@@ -74,17 +75,21 @@ test.describe('강의 생성', () => {
     await expect(page.getByRole('heading', { name: '새 강의 만들기' })).toBeVisible({ timeout: 10000 });
 
     // Fill course form
-    await page.getByLabel('강의 제목').fill(`${RUN_ID} UI 생성 강의`);
+    const createdDraftTitle = `${RUN_ID} UI 생성 강의`;
+    await page.getByLabel('강의 제목').fill(createdDraftTitle);
     await page.getByLabel('강의 설명').fill('E2E 테스트에서 UI로 생성한 강의입니다.');
 
     // Submit form
     await page.getByRole('button', { name: '강의 생성' }).click();
 
-    // Should redirect to tutor dashboard (course created successfully)
+    // Should redirect to tutor dashboard and show created course as published
     await expect(page).toHaveURL(/\/dashboard\/tutor/, { timeout: 10000 });
     await expect(page.getByRole('heading', { name: '내 강의' })).toBeVisible({ timeout: 10000 });
-    // Seeded published course should be visible
-    await expect(page.getByText(`${RUN_ID} 시드 강의`)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(createdDraftTitle)).toBeVisible({ timeout: 10000 });
+    const courseCard = page.locator('article, [class*="card"]', {
+      has: page.getByText(createdDraftTitle),
+    });
+    await expect(courseCard.getByText('공개', { exact: true })).toBeVisible();
   });
 });
 

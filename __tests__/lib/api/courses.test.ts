@@ -73,6 +73,29 @@ describe('coursesApi', () => {
     });
   });
 
+  describe('getMyCourses', () => {
+    it('튜터 전용 내 강의 목록을 조회한다', async () => {
+      const otherTutorCourse: CourseResponse = {
+        ...mockCourse,
+        id: 'course-2',
+        tutorId: 'tutor-2',
+      };
+      const paginated: PaginatedData<CourseResponse> = {
+        data: [mockCourse, otherTutorCourse],
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      };
+      mockGet.mockResolvedValueOnce(paginated);
+
+      const result = await coursesApi.getMyCourses('tutor-1');
+
+      expect(mockGet).toHaveBeenCalledWith('/courses?page=1&limit=100');
+      expect(result).toEqual([mockCourse]);
+    });
+  });
+
   describe('getCourse', () => {
     it('ID로 강의 상세를 조회한다', async () => {
       mockGet.mockResolvedValueOnce(mockCourse);

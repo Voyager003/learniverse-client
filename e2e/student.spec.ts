@@ -16,6 +16,17 @@ let courseId: string;
 let studentEmail: string;
 let enrolledStudentEmail: string;
 
+async function openEnrollmentDetail(page: import('@playwright/test').Page, courseTitle: string) {
+  const enrollmentLink = page
+    .locator('a[href^="/dashboard/student/enrollments/"]')
+    .filter({ hasText: courseTitle })
+    .first();
+
+  await expect(enrollmentLink).toBeVisible({ timeout: 10000 });
+  await enrollmentLink.click();
+  await expect(page).toHaveURL(/\/dashboard\/student\/enrollments\//, { timeout: 10000 });
+}
+
 test.beforeAll(async () => {
   // Seed: create tutor with a published course + 3 lectures
   const tutorEmail = uniqueEmail();
@@ -99,10 +110,7 @@ test.describe('학생 대시보드', () => {
     await loginUser(page, { email: enrolledStudentEmail, password: TEST_PASSWORD });
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
 
-    await expect(page.getByText(`${RUN_ID} 학생여정 강의`)).toBeVisible({ timeout: 10000 });
-    await page.getByText(`${RUN_ID} 학생여정 강의`).click();
-
-    await expect(page).toHaveURL(/\/dashboard\/student\/enrollments\//);
+    await openEnrollmentDetail(page, `${RUN_ID} 학생여정 강의`);
   });
 });
 
@@ -112,9 +120,7 @@ test.describe('진도 관리', () => {
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
 
     // Navigate to enrollment detail
-    await expect(page.getByText(`${RUN_ID} 학생여정 강의`)).toBeVisible({ timeout: 10000 });
-    await page.getByText(`${RUN_ID} 학생여정 강의`).click();
-    await expect(page).toHaveURL(/\/dashboard\/student\/enrollments\//, { timeout: 10000 });
+    await openEnrollmentDetail(page, `${RUN_ID} 학생여정 강의`);
 
     // Should show lessons
     await expect(page.getByText(`${RUN_ID} 레슨 1`)).toBeVisible({ timeout: 10000 });
@@ -133,9 +139,7 @@ test.describe('진도 관리', () => {
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
 
     // Navigate to enrollment detail
-    await expect(page.getByText(`${RUN_ID} 학생여정 강의`)).toBeVisible({ timeout: 10000 });
-    await page.getByText(`${RUN_ID} 학생여정 강의`).click();
-    await expect(page).toHaveURL(/\/dashboard\/student\/enrollments\//, { timeout: 10000 });
+    await openEnrollmentDetail(page, `${RUN_ID} 학생여정 강의`);
 
     // Complete remaining lessons (lesson 1 already done from previous test)
     await page.getByRole('button', { name: '완료' }).first().click();
