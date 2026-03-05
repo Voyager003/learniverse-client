@@ -11,6 +11,8 @@ export function useAssignments(courseId: string) {
     queryKey: [ASSIGNMENTS_KEY, courseId],
     queryFn: () => assignmentsApi.getAssignments(courseId),
     enabled: !!courseId,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 }
 

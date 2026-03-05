@@ -5,6 +5,7 @@ export interface AssignmentResponse {
   courseId: string;
   courseTitle?: string;
   dueDate: string | null;
+  isPublished: boolean;
   createdAt: string;
   updatedAt: string;
 }

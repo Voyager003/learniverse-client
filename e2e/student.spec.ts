@@ -6,6 +6,8 @@ import {
   apiCreateCourse,
   apiPublishCourse,
   apiCreateLecture,
+  apiCreateAssignment,
+  apiPublishAssignment,
   apiEnroll,
 } from './helpers/api';
 
@@ -15,6 +17,7 @@ const RUN_ID = Date.now().toString(36);
 let courseId: string;
 let studentEmail: string;
 let enrolledStudentEmail: string;
+let assignmentTitle: string;
 
 async function openEnrollmentDetail(page: import('@playwright/test').Page, courseTitle: string) {
   const enrollmentLink = page
@@ -51,6 +54,15 @@ test.beforeAll(async () => {
   }
 
   await apiPublishCourse(tutorToken, courseId);
+
+  assignmentTitle = `${RUN_ID} 학생 과제 1`;
+  const assignment = await apiCreateAssignment(tutorToken, courseId, {
+    title: assignmentTitle,
+    description: '학생이 과제 목록에서 바로 확인할 과제',
+  });
+  if (assignment.isPublished === false) {
+    await apiPublishAssignment(tutorToken, courseId, assignment.id, true);
+  }
 
   // Student for enrollment UI test (not pre-enrolled)
   studentEmail = uniqueEmail();
@@ -122,6 +134,7 @@ test.describe('학생 대시보드', () => {
     await page.getByRole('button', { name: '과제 보기' }).click();
     await expect(page).toHaveURL(new RegExp(`/courses/${courseId}/assignments`), { timeout: 10000 });
     await expect(page.getByRole('heading', { level: 1, name: '과제' })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(assignmentTitle)).toBeVisible({ timeout: 10000 });
   });
 });
 

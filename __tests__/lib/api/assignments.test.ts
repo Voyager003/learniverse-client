@@ -22,6 +22,7 @@ const mockAssignment: AssignmentResponse = {
   courseId: 'course-1',
   courseTitle: 'React 기초',
   dueDate: '2026-03-01T00:00:00.000Z',
+  isPublished: true,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
 };

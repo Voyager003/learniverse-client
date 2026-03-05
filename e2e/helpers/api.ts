@@ -140,7 +140,7 @@ export async function apiCreateAssignment(
   token: string,
   courseId: string,
   data: { title: string; description: string; dueDate?: string },
-): Promise<{ id: string }> {
+): Promise<{ id: string; isPublished?: boolean }> {
   const res = await fetch(`${API_URL}/courses/${courseId}/assignments`, {
     method: 'POST',
     headers: {
@@ -150,7 +150,7 @@ export async function apiCreateAssignment(
     body: JSON.stringify(data),
   });
   const json = await assertOk(res, `CreateAssignment "${data.title}"`);
-  return json.data as { id: string };
+  return json.data as { id: string; isPublished?: boolean };
 }
 
 /**
