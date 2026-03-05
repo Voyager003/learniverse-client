@@ -1,120 +1,97 @@
 # Learniverse Client
 
-온라인 교육 플랫폼의 프론트엔드 클라이언트입니다.
+## 프로젝트 소개
 
-## 기술 스택
+학생과 튜터가 강의 수강부터 과제 제출/피드백까지 한 흐름으로 진행하는 부트캠프형 학습 플랫폼
 
-| 항목 | 기술 |
-|------|------|
-| Framework | Next.js 16 + React 19 + TypeScript 5 |
-| UI | shadcn/ui (new-york) + Tailwind CSS 4 |
-| 서버 상태 | TanStack React Query |
-| 클라이언트 상태 | Zustand |
-| 폼 | react-hook-form + Zod |
-| 단위 테스트 | Vitest + Testing Library |
-| E2E 테스트 | Playwright |
-| 패키지 매니저 | bun |
+### 배포 URL
+- 프론트엔드: `https://learniverse-client-alpha.vercel.app`
+- 백엔드 API: `https://api.learniverse.store/api/v1`
 
-## 시작하기
+---
 
-### 사전 요구사항
+## ② 기술 스택
 
-- [Bun](https://bun.sh/) >= 1.0
-- [Node.js](https://nodejs.org/) >= 18
-- Learniverse 백엔드 서버 (NestJS)
+### 사용 기술과 버전
 
-### 설치
+#### Frontend (this repository)
+| 영역 | 기술 |
+|---|---|
+| Framework | Next.js `16.1.6`, React `19.2.3`, TypeScript `5` |
+| UI | Tailwind CSS `4`, shadcn/ui, Lucide React |
+| State/Data | TanStack Query `5.90.21`, Zustand `5.0.11` |
+| Form/Validation | react-hook-form `7.71.2`, Zod `4.3.6` |
+| Test | Vitest `4.0.18`, Testing Library, Playwright `1.58.2` |
+
+---
+
+## ③ 주요 기능
+
+### 핵심 기능 목록
+- 회원가입/로그인/로그아웃 (학생/튜터 역할 기반)
+- 강의 탐색, 강의 상세 조회
+- 학생 수강 신청 및 내 학습(진도율) 대시보드
+- 튜터 강의 생성/관리, 레슨 관리
+- 튜터 과제 출제, 학생 과제 제출, 튜터 피드백
+- 인증/권한 기반 라우트 보호 및 리다이렉트
+
+| 기능 | 미리보기 |
+|---|---|
+| 로그인 화면 | ![로그인](docs/screenshots/login.png) |
+| 회원가입 화면 | ![회원가입](docs/screenshots/register.png) |
+| 강의 탐색 | ![강의 탐색](docs/screenshots/course-catalog.png) |
+| 학생 대시보드 | ![학생 대시보드](docs/screenshots/student-dashboard.png) |
+| 튜터 대시보드 | ![튜터 대시보드](docs/screenshots/tutor-dashboard.png) |
+| 과제 제출 흐름 GIF | ![과제 제출](docs/screenshots/assignment-flow.gif) |
+
+---
+
+## ④ 시스템 아키텍처
+
+### 전체 구조도
+
+```mermaid
+flowchart LR
+  U[User Browser] --> F[Vercel / Next.js Frontend]
+  F -->|HTTPS + JWT| A[api.learniverse.store / Nginx]
+  A --> B[NestJS Backend API]
+  B --> P[(PostgreSQL)]
+  B --> M[(MongoDB)]
+```
+
+### 배포 환경 설명
+| 구성요소 | 환경 | 설명 |
+|---|---|---|
+| Frontend | Vercel | Next.js 정적/서버 렌더링 앱 배포 |
+| 연결 방식 | `NEXT_PUBLIC_API_URL` | 프론트에서 백엔드 API 엔드포인트를 환경변수로 주입 |
+
+---
+
+## 로컬 실행
 
 ```bash
 bun install
-```
-
-### 환경 변수
-
-`.env.example`을 `.env.local`로 복사한 뒤 값을 설정합니다.
-
-```bash
 cp .env.example .env.local
-```
-
-| 변수 | 설명 | 기본값 |
-|------|------|--------|
-| `NEXT_PUBLIC_API_URL` | 백엔드 API 기본 URL | `http://localhost:3000/api/v1` |
-
-프로덕션(Vercel)에서는 아래 값을 권장합니다.
-
-```bash
-NEXT_PUBLIC_API_URL=https://api.<your-domain>/api/v1
-```
-
-### 실행
-
-```bash
-# 개발 서버
 bun run dev
-
-# 프로덕션 빌드
-bun run build
-bun run start
 ```
 
-## 명령어
+환경변수 예시:
 
-| 명령어 | 설명 |
-|--------|------|
-| `bun run dev` | 개발 서버 실행 |
-| `bun run build` | 프로덕션 빌드 |
-| `bun run start` | 프로덕션 서버 실행 |
-| `bun run lint` | ESLint 검사 |
-| `bun run test` | 단위 테스트 실행 |
-| `bun run test:watch` | 단위 테스트 워치 모드 |
-| `bun run test:coverage` | 테스트 커버리지 리포트 |
-| `bun run e2e` | Playwright E2E 테스트 |
-| `bun run e2e:ui` | Playwright UI 모드 |
-
-## 프로젝트 구조
-
-```
-app/
-├── (auth)/              # 인증 (로그인, 회원가입)
-├── (main)/              # 메인 레이아웃 (헤더 + 푸터)
-│   ├── courses/         # 강의 카탈로그 & 상세
-│   ├── dashboard/       # 학생/튜터 대시보드
-│   ├── admin/           # 관리자 페이지
-│   └── profile/         # 프로필
-├── layout.tsx           # Root Layout (Providers)
-└── globals.css
-
-components/
-├── ui/                  # shadcn/ui 컴포넌트
-├── layout/              # Header, Footer, Sidebar
-├── auth/                # 로그인/회원가입 폼, RoleGuard
-├── courses/             # 강의 카드, 그리드, 필터, 폼
-├── lectures/            # 레슨 목록, 폼
-├── enrollments/         # 수강 버튼, 진도 바
-├── assignments/         # 과제 카드, 폼
-├── submissions/         # 제출 폼, 피드백 폼
-└── shared/              # 공통 컴포넌트
-
-lib/
-├── api/                 # API 클라이언트 & 도메인별 함수
-├── hooks/               # TanStack Query 커스텀 훅
-├── store/               # Zustand 스토어 (인증)
-├── types/               # TypeScript 타입 정의
-├── utils/               # cn(), 날짜/숫자 포맷터
-└── providers/           # QueryProvider, ThemeProvider
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:3000/api/v1
 ```
 
-## 백엔드 연동
+---
 
-Learniverse 백엔드(NestJS)와 연동하여 동작합니다.
+## 테스트
 
-- API 기본 경로: `/api/v1`
-- 인증: JWT (access token 15분 + refresh token 7일)
-- 역할: 학생(student), 튜터(tutor), 관리자(admin)
+```bash
+# Unit test
+bun run test
 
-### 프로덕션 연동 체크리스트
+# Coverage
+bun run test:coverage
 
-1. Vercel 환경변수 `NEXT_PUBLIC_API_URL`이 `https://api.<your-domain>/api/v1`인지 확인
-2. 백엔드 `APP_CORS_ORIGINS`에 Vercel 도메인이 포함되어 있는지 확인
-3. 브라우저 개발자도구에서 Mixed Content/CORS 오류가 없는지 확인
+# E2E
+bun run e2e
+```
