@@ -57,7 +57,11 @@ export default function TutorDashboardPage() {
       {courses && courses.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {courses.map((course) => (
-            <Card key={course.id} className="transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-md">
+            <Card
+              key={course.id}
+              data-testid={`tutor-course-card-${course.id}`}
+              className="transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-md"
+            >
               <CardHeader>
                 <div className="flex items-center justify-between gap-2">
                   <CardTitle className="line-clamp-1 text-lg">{course.title}</CardTitle>
@@ -77,17 +81,29 @@ export default function TutorDashboardPage() {
                   </div>
                   <div className="flex gap-1">
                     <Button variant="ghost" size="icon" asChild>
-                      <Link href={`/dashboard/tutor/courses/${course.id}/lectures`} aria-label="레슨 관리">
+                      <Link
+                        href={`/dashboard/tutor/courses/${course.id}/lectures`}
+                        aria-label="레슨 관리"
+                        data-testid={`tutor-course-${course.id}-lectures-link`}
+                      >
                         <BookOpen className="h-4 w-4" />
                       </Link>
                     </Button>
                     <Button variant="ghost" size="icon" asChild>
-                      <Link href={`/dashboard/tutor/courses/${course.id}/assignments`} aria-label="과제 관리">
+                      <Link
+                        href={`/dashboard/tutor/courses/${course.id}/assignments`}
+                        aria-label="과제 관리"
+                        data-testid={`tutor-course-${course.id}-assignments-link`}
+                      >
                         <ClipboardList className="h-4 w-4" />
                       </Link>
                     </Button>
                     <Button variant="ghost" size="icon" asChild>
-                      <Link href={`/dashboard/tutor/courses/${course.id}/edit`} aria-label="강의 편집">
+                      <Link
+                        href={`/dashboard/tutor/courses/${course.id}/edit`}
+                        aria-label="강의 편집"
+                        data-testid={`tutor-course-${course.id}-edit-link`}
+                      >
                         <Pencil className="h-4 w-4" />
                       </Link>
                     </Button>

@@ -19,6 +19,7 @@ import {
 import { useAuthStore } from '@/lib/store/auth-store';
 import { useCreateEnrollment } from '@/lib/hooks/use-enrollments';
 import { ApiClientError } from '@/lib/api/client';
+import { getUserFacingErrorMessage } from '@/lib/errors/get-user-facing-error-message';
 
 interface EnrollButtonProps {
   courseId: string;
@@ -40,11 +41,11 @@ export function EnrollButton({ courseId }: EnrollButtonProps) {
       router.push('/dashboard');
     } catch (error) {
       if (error instanceof ApiClientError && error.statusCode === 409) {
-        toast.success('이미 수강 중인 강의입니다');
+        toast.success(getUserFacingErrorMessage(error, 'enrollment.create'));
         router.push('/dashboard');
         return;
       }
-      toast.error('수강 신청에 실패했습니다');
+      toast.error(getUserFacingErrorMessage(error, 'enrollment.create'));
     } finally {
       setIsConfirming(false);
     }

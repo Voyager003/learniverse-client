@@ -107,7 +107,7 @@ test.describe('로그인', () => {
 });
 
 test.describe('로그아웃', () => {
-  test('로그인된 사용자가 로그아웃 후 헤더에 로그인 버튼이 표시된다', async ({ page }) => {
+  test('로그인된 사용자가 로그아웃 후 로그인 페이지로 이동한다', async ({ page }) => {
     const email = uniqueEmail();
 
     // Register and land on dashboard
@@ -120,8 +120,10 @@ test.describe('로그아웃', () => {
     await page.getByRole('button', { name: '사용자 메뉴' }).click();
     await page.getByRole('menuitem', { name: '로그아웃' }).click();
 
-    // Should show login button in header
-    await expect(page.getByRole('link', { name: '로그인' })).toBeVisible({ timeout: 5000 });
+    // Should redirect to login page
+    await expect(page).toHaveURL(/\/login/, { timeout: 10000 });
+    await expect(page.getByLabel('이메일')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('button', { name: '로그인' })).toBeVisible({ timeout: 5000 });
   });
 });
 

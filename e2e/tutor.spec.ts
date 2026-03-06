@@ -19,7 +19,27 @@ let tutorEmail: string;
 let tutorAccessToken: string;
 // Pre-seeded course for lecture/assignment/submission tests
 let seededCourseId: string;
+let seededLectureId: string;
 let seededAssignmentId: string;
+
+async function openTutorCourseSection(
+  page: import('@playwright/test').Page,
+  courseId: string,
+  section: 'lectures' | 'assignments' | 'edit',
+) {
+  const sectionLink = page.getByTestId(`tutor-course-${courseId}-${section}-link`);
+  const targetPath =
+    section === 'edit'
+      ? `/dashboard/tutor/courses/${courseId}/edit`
+      : `/dashboard/tutor/courses/${courseId}/${section}`;
+
+  await expect(sectionLink).toBeVisible({ timeout: 10000 });
+  await expect(sectionLink).toHaveAttribute('href', targetPath, { timeout: 10000 });
+  await Promise.all([
+    page.waitForURL(new RegExp(`${targetPath.replace(/\//g, '\\/')}$`), { timeout: 10000 }),
+    sectionLink.click(),
+  ]);
+}
 
 test.beforeAll(async () => {
   // Register tutor
@@ -40,11 +60,12 @@ test.beforeAll(async () => {
   await apiPublishCourse(tutorAccessToken, seededCourseId);
 
   // Seed a lecture for delete test
-  await apiCreateLecture(tutorAccessToken, seededCourseId, {
+  const lecture = await apiCreateLecture(tutorAccessToken, seededCourseId, {
     title: `${RUN_ID} 삭제용 레슨`,
     content: '이 레슨은 삭제 테스트에 사용됩니다.',
     order: 1,
   });
+  seededLectureId = lecture.id;
 
   // Seed an assignment + student submission for feedback test
   const assignment = await apiCreateAssignment(tutorAccessToken, seededCourseId, {
@@ -110,10 +131,11 @@ test.describe('강의 수정', () => {
     await expect(page.getByText(`${RUN_ID} 시드 강의`)).toBeVisible({ timeout: 10000 });
 
     // Click edit button (Pencil icon) for the seeded course
-    const courseCard = page.locator('article, [class*="card"]', {
-      has: page.getByText(`${RUN_ID} 시드 강의`),
-    });
-    await courseCard.getByRole('link', { name: '강의 편집' }).click();
+    await openTutorCourseSection(
+      page,
+      seededCourseId,
+      'edit',
+    );
 
     // Should be on edit page
     await expect(page.getByRole('heading', { name: '강의 수정' })).toBeVisible({ timeout: 10000 });
@@ -139,15 +161,18 @@ test.describe('레슨 관리', () => {
 
     // Navigate to tutor dashboard → lectures page
     await page.getByRole('link', { name: '내 강의' }).first().click();
-    await expect(page.getByText(`${RUN_ID} 수정된 강의`)).toBeVisible({ timeout: 10000 });
-
-    const courseCard = page.locator('article, [class*="card"]', {
-      has: page.getByText(`${RUN_ID} 수정된 강의`),
+    await expect(page.getByTestId(`tutor-course-card-${seededCourseId}`)).toBeVisible({
+      timeout: 10000,
     });
-    await courseCard.getByRole('link', { name: '레슨 관리' }).click();
+
+    await openTutorCourseSection(
+      page,
+      seededCourseId,
+      'lectures',
+    );
 
     // Should be on lectures page
-    await expect(page.getByText('레슨 관리')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('button', { name: '레슨 추가' })).toBeVisible({ timeout: 10000 });
 
     // Click "레슨 추가"
     await page.getByRole('button', { name: '레슨 추가' }).click();
@@ -169,22 +194,22 @@ test.describe('레슨 관리', () => {
 
     // Navigate to tutor dashboard → lectures page
     await page.getByRole('link', { name: '내 강의' }).first().click();
-    await expect(page.getByText(`${RUN_ID} 수정된 강의`)).toBeVisible({ timeout: 10000 });
-
-    const courseCard = page.locator('article, [class*="card"]', {
-      has: page.getByText(`${RUN_ID} 수정된 강의`),
+    await expect(page.getByTestId(`tutor-course-card-${seededCourseId}`)).toBeVisible({
+      timeout: 10000,
     });
-    await courseCard.getByRole('link', { name: '레슨 관리' }).click();
+
+    await openTutorCourseSection(
+      page,
+      seededCourseId,
+      'lectures',
+    );
 
     // Wait for lecture list
     await expect(page.getByText(`${RUN_ID} 삭제용 레슨`)).toBeVisible({ timeout: 10000 });
 
     // Find the lecture card and click delete button (Trash icon)
-    const lectureCard = page.locator('article, [class*="card"]', {
-      has: page.getByText(`${RUN_ID} 삭제용 레슨`),
-    });
-    // Click the trash button (second ghost icon button in the card)
-    await lectureCard.getByRole('button').filter({ has: page.locator('svg') }).last().click();
+    const lectureCard = page.getByTestId(`lecture-card-${seededLectureId}`);
+    await lectureCard.getByTestId(`lecture-delete-${seededLectureId}`).click();
 
     // Confirmation dialog
     await expect(page.getByText('레슨을 삭제하시겠습니까?')).toBeVisible();
@@ -202,12 +227,15 @@ test.describe('과제 관리', () => {
 
     // Navigate to tutor dashboard → assignments page
     await page.getByRole('link', { name: '내 강의' }).first().click();
-    await expect(page.getByText(`${RUN_ID} 수정된 강의`)).toBeVisible({ timeout: 10000 });
-
-    const courseCard = page.locator('article, [class*="card"]', {
-      has: page.getByText(`${RUN_ID} 수정된 강의`),
+    await expect(page.getByTestId(`tutor-course-card-${seededCourseId}`)).toBeVisible({
+      timeout: 10000,
     });
-    await courseCard.getByRole('link', { name: '과제 관리' }).click();
+
+    await openTutorCourseSection(
+      page,
+      seededCourseId,
+      'assignments',
+    );
 
     // Should see existing seeded assignment
     await expect(page.getByRole('heading', { name: '과제 관리' })).toBeVisible({ timeout: 10000 });
@@ -234,19 +262,29 @@ test.describe('제출물 피드백', () => {
 
     // Navigate to tutor dashboard → assignments → submissions
     await page.getByRole('link', { name: '내 강의' }).first().click();
-    await expect(page.getByText(`${RUN_ID} 수정된 강의`)).toBeVisible({ timeout: 10000 });
-
-    const courseCard = page.locator('article, [class*="card"]', {
-      has: page.getByText(`${RUN_ID} 수정된 강의`),
+    await expect(page.getByTestId(`tutor-course-card-${seededCourseId}`)).toBeVisible({
+      timeout: 10000,
     });
-    await courseCard.getByRole('link', { name: '과제 관리' }).click();
+
+    await openTutorCourseSection(
+      page,
+      seededCourseId,
+      'assignments',
+    );
     await expect(page.getByText(`${RUN_ID} 시드 과제`)).toBeVisible({ timeout: 10000 });
 
     // Click "제출물 보기" for seeded assignment
-    const assignmentCard = page.locator('article, [class*="card"]', {
-      has: page.getByText(`${RUN_ID} 시드 과제`),
-    });
-    await assignmentCard.getByRole('link', { name: '제출물 보기' }).click();
+    const submissionsLink = page.getByTestId(`assignment-submissions-link-${seededAssignmentId}`);
+    await expect(submissionsLink).toBeVisible({ timeout: 10000 });
+    await Promise.all([
+      page.waitForURL(
+        new RegExp(
+          `/dashboard/tutor/courses/${seededCourseId}/submissions\\?assignmentId=${seededAssignmentId}$`,
+        ),
+        { timeout: 10000 },
+      ),
+      submissionsLink.click(),
+    ]);
 
     // Should see submission content
     await expect(page.getByRole('heading', { name: '제출물 관리' })).toBeVisible({ timeout: 10000 });

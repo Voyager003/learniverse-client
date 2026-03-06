@@ -2,10 +2,10 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1,
   reporter: 'html',
   expect: {
     timeout: 20000,
@@ -22,8 +22,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'bun run dev',
+    command: 'bun run build && bun run start:e2e',
     url: 'http://localhost:3001',
     reuseExistingServer: process.env.PW_REUSE_SERVER === '1',
+    timeout: 120 * 1000,
   },
 });

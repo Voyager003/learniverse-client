@@ -20,6 +20,7 @@ import {
 import { LoadingSpinner } from '@/components/shared/loading-spinner';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { usersApi } from '@/lib/api/users';
+import { getUserFacingErrorMessage } from '@/lib/errors/get-user-facing-error-message';
 import { ROLE_LABELS } from '@/lib/types';
 import { formatDate } from '@/lib/utils/format';
 import { profileSchema, type ProfileFormValues } from '@/lib/utils/validators';
@@ -57,7 +58,7 @@ export default function ProfilePage() {
       toast.success('프로필이 수정되었습니다');
     },
     onError: (error) => {
-      toast.error(error.message || '프로필 수정에 실패했습니다');
+      toast.error(getUserFacingErrorMessage(error, 'profile.update'));
     },
   });
 

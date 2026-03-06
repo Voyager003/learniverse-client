@@ -17,17 +17,40 @@ const RUN_ID = Date.now().toString(36);
 let courseId: string;
 let studentEmail: string;
 let enrolledStudentEmail: string;
+let enrolledStudentEnrollmentId: string;
 let assignmentTitle: string;
 
-async function openEnrollmentDetail(page: import('@playwright/test').Page, courseTitle: string) {
-  const enrollmentLink = page
-    .locator('a[href^="/dashboard/student/enrollments/"]')
-    .filter({ hasText: courseTitle })
-    .first();
+async function openCourseDetail(page: import('@playwright/test').Page, targetCourseId: string) {
+  const courseLink = page.getByTestId(`course-card-link-${targetCourseId}`);
+
+  await expect(courseLink).toBeVisible({ timeout: 10000 });
+  await expect(courseLink).toHaveAttribute('href', new RegExp(`/courses/${targetCourseId}$`), {
+    timeout: 10000,
+  });
+  await Promise.all([
+    page.waitForURL(new RegExp(`/courses/${targetCourseId}$`), { timeout: 10000 }),
+    courseLink.click(),
+  ]);
+}
+
+async function openEnrollmentDetail(
+  page: import('@playwright/test').Page,
+  enrollmentId: string,
+) {
+  const enrollmentLink = page.getByTestId(`student-enrollment-link-${enrollmentId}`);
 
   await expect(enrollmentLink).toBeVisible({ timeout: 10000 });
-  await enrollmentLink.click();
-  await expect(page).toHaveURL(/\/dashboard\/student\/enrollments\//, { timeout: 10000 });
+  await expect(
+    enrollmentLink,
+  ).toHaveAttribute('href', new RegExp(`/dashboard/student/enrollments/${enrollmentId}$`), {
+    timeout: 10000,
+  });
+  await Promise.all([
+    page.waitForURL(new RegExp(`/dashboard/student/enrollments/${enrollmentId}$`), {
+      timeout: 10000,
+    }),
+    enrollmentLink.click(),
+  ]);
 }
 
 test.beforeAll(async () => {
@@ -75,7 +98,8 @@ test.beforeAll(async () => {
     email: enrolledStudentEmail,
     password: TEST_PASSWORD,
   });
-  await apiEnroll(enrolledTokens.accessToken, courseId);
+  const enrollment = await apiEnroll(enrolledTokens.accessToken, courseId);
+  enrolledStudentEnrollmentId = enrollment.id;
 });
 
 test.describe('수강 신청', () => {
@@ -91,8 +115,7 @@ test.describe('수강 신청', () => {
 
     // Navigate to course via in-app navigation (preserves Zustand state)
     await page.getByRole('link', { name: '강의 탐색' }).first().click();
-    await expect(page.getByText(`${RUN_ID} 학생여정 강의`)).toBeVisible({ timeout: 10000 });
-    await page.getByText(`${RUN_ID} 학생여정 강의`).click();
+    await openCourseDetail(page, courseId);
 
     // Should be on course detail with authenticated enroll button
     await expect(page.getByRole('heading', { name: `${RUN_ID} 학생여정 강의` })).toBeVisible({ timeout: 10000 });
@@ -122,14 +145,14 @@ test.describe('학생 대시보드', () => {
     await loginUser(page, { email: enrolledStudentEmail, password: TEST_PASSWORD });
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
 
-    await openEnrollmentDetail(page, `${RUN_ID} 학생여정 강의`);
+    await openEnrollmentDetail(page, enrolledStudentEnrollmentId);
   });
 
   test('진도 상세에서 과제 보기 버튼을 누르면 과제 페이지로 이동한다', async ({ page }) => {
     await loginUser(page, { email: enrolledStudentEmail, password: TEST_PASSWORD });
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
 
-    await openEnrollmentDetail(page, `${RUN_ID} 학생여정 강의`);
+    await openEnrollmentDetail(page, enrolledStudentEnrollmentId);
 
     await page.getByRole('button', { name: '과제 보기' }).click();
     await expect(page).toHaveURL(new RegExp(`/courses/${courseId}/assignments`), { timeout: 10000 });
@@ -144,7 +167,7 @@ test.describe('진도 관리', () => {
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
 
     // Navigate to enrollment detail
-    await openEnrollmentDetail(page, `${RUN_ID} 학생여정 강의`);
+    await openEnrollmentDetail(page, enrolledStudentEnrollmentId);
 
     // Should show lessons
     await expect(page.getByText(`${RUN_ID} 레슨 1`)).toBeVisible({ timeout: 10000 });
@@ -163,7 +186,7 @@ test.describe('진도 관리', () => {
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
 
     // Navigate to enrollment detail
-    await openEnrollmentDetail(page, `${RUN_ID} 학생여정 강의`);
+    await openEnrollmentDetail(page, enrolledStudentEnrollmentId);
 
     // Complete remaining lessons (lesson 1 already done from previous test)
     await page.getByRole('button', { name: '완료' }).first().click();

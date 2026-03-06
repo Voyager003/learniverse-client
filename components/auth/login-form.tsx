@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/form';
 import { loginSchema, type LoginFormValues } from '@/lib/utils/validators';
 import { useAuth } from '@/lib/hooks/use-auth';
+import { getUserFacingErrorMessage } from '@/lib/errors/get-user-facing-error-message';
 
 export function LoginForm() {
   const router = useRouter();
@@ -47,8 +48,8 @@ export function LoginForm() {
       await login(values);
       toast.success('로그인되었습니다');
       router.push(callbackUrl);
-    } catch {
-      toast.error('이메일 또는 비밀번호가 올바르지 않습니다');
+    } catch (error) {
+      toast.error(getUserFacingErrorMessage(error, 'auth.login'));
     }
   }
 

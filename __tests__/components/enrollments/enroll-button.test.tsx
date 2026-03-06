@@ -90,10 +90,24 @@ describe('EnrollButton', () => {
     await user.click(screen.getByRole('button', { name: '확인' }));
 
     await waitFor(() => {
-      expect(mockToastSuccess).toHaveBeenCalledWith('이미 수강 중인 강의입니다');
+      expect(mockToastSuccess).toHaveBeenCalledWith('이미 수강 중인 강의입니다.');
     });
     expect(mockPush).toHaveBeenCalledWith('/dashboard');
     expect(mockToastError).not.toHaveBeenCalled();
+  });
+
+  it('튜터가 수강 신청(403)하면 명확한 안내 메시지를 표시한다', async () => {
+    mockEnroll.mockRejectedValueOnce(new ApiClientError(403, 'Insufficient permissions'));
+    render(<EnrollButton courseId="course-1" />);
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole('button', { name: '확인' }));
+
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith('튜터는 수강 신청이 불가능합니다.');
+    });
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockToastSuccess).not.toHaveBeenCalled();
   });
 
   it('일반 실패 시 에러 메시지를 표시한다', async () => {
@@ -104,7 +118,9 @@ describe('EnrollButton', () => {
     await user.click(screen.getByRole('button', { name: '확인' }));
 
     await waitFor(() => {
-      expect(mockToastError).toHaveBeenCalledWith('수강 신청에 실패했습니다');
+      expect(mockToastError).toHaveBeenCalledWith(
+        '수강 신청에 실패했습니다. 잠시 후 다시 시도해주세요.',
+      );
     });
     expect(mockPush).not.toHaveBeenCalled();
   });

@@ -6,6 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CourseForm } from '@/components/courses/course-form';
 import { useCreateCourse, useUpdateCourse } from '@/lib/hooks/use-courses';
+import { getUserFacingErrorMessage } from '@/lib/errors/get-user-facing-error-message';
 import type { CourseFormValues } from '@/lib/utils/validators';
 
 export default function NewCoursePage() {
@@ -24,8 +25,8 @@ export default function NewCoursePage() {
       }
 
       router.push('/dashboard/tutor');
-    } catch {
-      toast.error('강의 생성에 실패했습니다');
+    } catch (error) {
+      toast.error(getUserFacingErrorMessage(error, 'course.create'));
     }
   }
 

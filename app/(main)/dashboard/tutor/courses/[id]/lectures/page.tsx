@@ -26,6 +26,7 @@ import {
   useUpdateLecture,
   useDeleteLecture,
 } from '@/lib/hooks/use-courses';
+import { getUserFacingErrorMessage } from '@/lib/errors/get-user-facing-error-message';
 import type { LectureFormValues } from '@/lib/utils/validators';
 import type { LectureResponse } from '@/lib/types';
 
@@ -73,8 +74,8 @@ export default function LecturesPage({ params }: LecturesPageProps) {
       });
       toast.success('레슨이 추가되었습니다');
       setShowForm(false);
-    } catch {
-      toast.error('레슨 추가에 실패했습니다');
+    } catch (error) {
+      toast.error(getUserFacingErrorMessage(error, 'lecture.create'));
     }
   }
 
@@ -92,8 +93,8 @@ export default function LecturesPage({ params }: LecturesPageProps) {
       });
       toast.success('레슨이 수정되었습니다');
       setEditingLecture(null);
-    } catch {
-      toast.error('레슨 수정에 실패했습니다');
+    } catch (error) {
+      toast.error(getUserFacingErrorMessage(error, 'lecture.update'));
     }
   }
 
@@ -101,8 +102,8 @@ export default function LecturesPage({ params }: LecturesPageProps) {
     try {
       await deleteLecture(lectureId);
       toast.success('레슨이 삭제되었습니다');
-    } catch {
-      toast.error('레슨 삭제에 실패했습니다');
+    } catch (error) {
+      toast.error(getUserFacingErrorMessage(error, 'lecture.delete'));
     }
   }
 
@@ -156,7 +157,7 @@ export default function LecturesPage({ params }: LecturesPageProps) {
       ) : (
         <div className="space-y-3">
           {lectures.map((lecture) => (
-            <Card key={lecture.id}>
+            <Card key={lecture.id} data-testid={`lecture-card-${lecture.id}`}>
               {editingLecture?.id === lecture.id ? (
                 <CardContent className="pt-6">
                   <LectureForm
@@ -190,6 +191,8 @@ export default function LecturesPage({ params }: LecturesPageProps) {
                       <Button
                         variant="ghost"
                         size="icon"
+                        aria-label="레슨 수정"
+                        data-testid={`lecture-edit-${lecture.id}`}
                         onClick={() => {
                           setEditingLecture(lecture);
                           setShowForm(false);
@@ -199,7 +202,12 @@ export default function LecturesPage({ params }: LecturesPageProps) {
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="레슨 삭제"
+                            data-testid={`lecture-delete-${lecture.id}`}
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>

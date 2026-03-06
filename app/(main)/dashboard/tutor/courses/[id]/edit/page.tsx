@@ -22,6 +22,7 @@ import { CourseForm } from '@/components/courses/course-form';
 import { LoadingSpinner } from '@/components/shared/loading-spinner';
 import { EmptyState } from '@/components/shared/empty-state';
 import { useCourse, useUpdateCourse, useDeleteCourse } from '@/lib/hooks/use-courses';
+import { getUserFacingErrorMessage } from '@/lib/errors/get-user-facing-error-message';
 import type { CourseFormValues } from '@/lib/utils/validators';
 
 interface EditCoursePageProps {
@@ -55,8 +56,8 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
       await updateCourse({ id, body: values });
       toast.success('강의가 수정되었습니다');
       router.push('/dashboard/tutor');
-    } catch {
-      toast.error('강의 수정에 실패했습니다');
+    } catch (error) {
+      toast.error(getUserFacingErrorMessage(error, 'course.update'));
     }
   }
 
@@ -64,8 +65,8 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
     try {
       await updateCourse({ id, body: { isPublished: !course!.isPublished } });
       toast.success(course!.isPublished ? '강의가 비공개로 전환되었습니다' : '강의가 공개되었습니다');
-    } catch {
-      toast.error('상태 변경에 실패했습니다');
+    } catch (error) {
+      toast.error(getUserFacingErrorMessage(error, 'course.publish'));
     }
   }
 
@@ -74,8 +75,8 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
       await deleteCourse(id);
       toast.success('강의가 삭제되었습니다');
       router.push('/dashboard/tutor');
-    } catch {
-      toast.error('강의 삭제에 실패했습니다');
+    } catch (error) {
+      toast.error(getUserFacingErrorMessage(error, 'course.delete'));
     }
   }
 

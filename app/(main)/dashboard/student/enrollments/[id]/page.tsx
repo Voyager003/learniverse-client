@@ -13,6 +13,7 @@ import { LoadingSpinner } from '@/components/shared/loading-spinner';
 import { EmptyState } from '@/components/shared/empty-state';
 import { useEnrollment, useUpdateProgress } from '@/lib/hooks/use-enrollments';
 import { useCourse } from '@/lib/hooks/use-courses';
+import { getUserFacingErrorMessage } from '@/lib/errors/get-user-facing-error-message';
 import { ENROLLMENT_STATUS_LABELS, EnrollmentStatus } from '@/lib/types';
 
 interface EnrollmentDetailPageProps {
@@ -60,8 +61,8 @@ export default function EnrollmentDetailPage({ params }: EnrollmentDetailPagePro
       if (newProgress >= 100) {
         toast.success('축하합니다! 강의를 완료했습니다');
       }
-    } catch {
-      toast.error('진도 업데이트에 실패했습니다');
+    } catch (error) {
+      toast.error(getUserFacingErrorMessage(error, 'progress.update'));
     }
   }
 

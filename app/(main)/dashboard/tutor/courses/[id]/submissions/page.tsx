@@ -11,6 +11,7 @@ import { LoadingSpinner } from '@/components/shared/loading-spinner';
 import { EmptyState } from '@/components/shared/empty-state';
 import { FeedbackForm } from '@/components/submissions/feedback-form';
 import { useSubmissions, useAddFeedback } from '@/lib/hooks/use-submissions';
+import { getUserFacingErrorMessage } from '@/lib/errors/get-user-facing-error-message';
 import { SUBMISSION_STATUS_LABELS, SubmissionStatus } from '@/lib/types';
 import type { FeedbackFormValues } from '@/lib/utils/validators';
 
@@ -59,8 +60,8 @@ export default function TutorSubmissionsPage({ params }: TutorSubmissionsPagePro
       });
       toast.success('피드백이 저장되었습니다');
       setFeedbackTarget(null);
-    } catch {
-      toast.error('피드백 저장에 실패했습니다');
+    } catch (error) {
+      toast.error(getUserFacingErrorMessage(error, 'submission.feedback.save'));
     }
   }
 

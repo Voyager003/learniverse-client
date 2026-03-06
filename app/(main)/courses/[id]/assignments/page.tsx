@@ -13,6 +13,7 @@ import { SubmissionForm } from '@/components/submissions/submission-form';
 import { SubmissionCard } from '@/components/submissions/submission-card';
 import { useAssignments } from '@/lib/hooks/use-assignments';
 import { useSubmissions, useCreateSubmission } from '@/lib/hooks/use-submissions';
+import { getUserFacingErrorMessage } from '@/lib/errors/get-user-facing-error-message';
 import type { SubmissionFormValues } from '@/lib/utils/validators';
 
 interface AssignmentsPageProps {
@@ -35,8 +36,8 @@ function AssignmentWithSubmission({
       await createSubmission(values);
       toast.success('과제가 제출되었습니다');
       setShowForm(false);
-    } catch {
-      toast.error('제출에 실패했습니다');
+    } catch (error) {
+      toast.error(getUserFacingErrorMessage(error, 'assignment.submit'));
     }
   }
 

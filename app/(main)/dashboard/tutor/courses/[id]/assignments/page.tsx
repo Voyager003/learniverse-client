@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/shared/empty-state';
 import { AssignmentCard } from '@/components/assignments/assignment-card';
 import { AssignmentForm } from '@/components/assignments/assignment-form';
 import { useAssignments, useCreateAssignment } from '@/lib/hooks/use-assignments';
+import { getUserFacingErrorMessage } from '@/lib/errors/get-user-facing-error-message';
 import type { AssignmentFormValues } from '@/lib/utils/validators';
 
 interface TutorAssignmentsPageProps {
@@ -38,8 +39,8 @@ export default function TutorAssignmentsPage({ params }: TutorAssignmentsPagePro
       });
       toast.success('과제가 출제되었습니다');
       setShowForm(false);
-    } catch {
-      toast.error('과제 출제에 실패했습니다');
+    } catch (error) {
+      toast.error(getUserFacingErrorMessage(error, 'assignment.create'));
     }
   }
 
@@ -96,7 +97,10 @@ export default function TutorAssignmentsPage({ params }: TutorAssignmentsPagePro
               assignment={assignment}
               actions={
                 <Button variant="outline" size="sm" asChild>
-                  <Link href={`/dashboard/tutor/courses/${courseId}/submissions?assignmentId=${assignment.id}`}>
+                  <Link
+                    href={`/dashboard/tutor/courses/${courseId}/submissions?assignmentId=${assignment.id}`}
+                    data-testid={`assignment-submissions-link-${assignment.id}`}
+                  >
                     제출물 보기
                   </Link>
                 </Button>

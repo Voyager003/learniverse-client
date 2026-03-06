@@ -32,9 +32,9 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { ApiClientError } from '@/lib/api/client';
 import { registerSchema, type RegisterFormValues } from '@/lib/utils/validators';
 import { useAuth } from '@/lib/hooks/use-auth';
+import { getUserFacingErrorMessage } from '@/lib/errors/get-user-facing-error-message';
 
 export function RegisterForm() {
   const router = useRouter();
@@ -56,17 +56,7 @@ export function RegisterForm() {
       toast.success('회원가입이 완료되었습니다');
       router.push('/dashboard');
     } catch (error) {
-      if (error instanceof ApiClientError) {
-        if (error.statusCode === 409) {
-          toast.error('이미 가입된 이메일입니다. 다른 이메일을 사용해주세요.');
-          return;
-        }
-        if (error.statusCode === 400) {
-          toast.error('회원가입 요청이 올바르지 않습니다. 입력값을 확인해주세요.');
-          return;
-        }
-      }
-      toast.error('회원가입에 실패했습니다. 다시 시도해주세요.');
+      toast.error(getUserFacingErrorMessage(error, 'auth.register'));
     }
   }
 
