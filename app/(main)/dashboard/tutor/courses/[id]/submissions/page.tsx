@@ -90,7 +90,9 @@ export default function TutorSubmissionsPage({ params }: TutorSubmissionsPagePro
               <CardHeader className="py-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base">
-                    학생: {submission.studentId.slice(0, 8)}...
+                    {submission.studentName
+                      ? `학생: ${submission.studentName}`
+                      : `학생 ID: ${submission.studentId.slice(0, 8)}...`}
                   </CardTitle>
                   <div className="flex items-center gap-2">
                     {submission.score !== null && (

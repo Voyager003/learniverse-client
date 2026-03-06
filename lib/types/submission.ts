@@ -3,6 +3,7 @@ import { SubmissionStatus } from './enums';
 export interface SubmissionResponse {
   id: string;
   studentId: string;
+  studentName?: string;
   assignmentId: string;
   content: string;
   fileUrls: string[];
