@@ -35,15 +35,6 @@
 - 튜터 과제 출제, 학생 과제 제출, 튜터 피드백
 - 인증/권한 기반 라우트 보호 및 리다이렉트
 
-| 기능 | 미리보기 |
-|---|---|
-| 로그인 화면 | ![로그인](docs/screenshots/login.png) |
-| 회원가입 화면 | ![회원가입](docs/screenshots/register.png) |
-| 강의 탐색 | ![강의 탐색](docs/screenshots/course-catalog.png) |
-| 학생 대시보드 | ![학생 대시보드](docs/screenshots/student-dashboard.png) |
-| 튜터 대시보드 | ![튜터 대시보드](docs/screenshots/tutor-dashboard.png) |
-| 과제 제출 흐름 GIF | ![과제 제출](docs/screenshots/assignment-flow.gif) |
-
 ---
 
 ## ④ 시스템 아키텍처
