@@ -8,8 +8,6 @@ export function uniqueEmail() {
 }
 
 export const TEST_PASSWORD = 'Test1234!';
-export const TEST_ADMIN_EMAIL = process.env.PW_ADMIN_EMAIL ?? 'admin-e2e@test.com';
-export const TEST_ADMIN_PASSWORD = process.env.PW_ADMIN_PASSWORD ?? TEST_PASSWORD;
 
 interface AuthActionOptions {
   waitForAuthReady?: boolean;
@@ -63,7 +61,7 @@ export async function registerUser(
   await page.goto('/register');
   await page.getByLabel('이름').fill(name);
   await page.getByLabel('이메일').fill(email);
-  await page.getByLabel('비밀번호').fill(password);
+  await page.getByLabel('비밀번호', { exact: true }).fill(password);
   if (role === 'tutor') {
     await page.getByRole('combobox', { name: '역할' }).click();
     await page.getByRole('option', { name: '튜터' }).click();
@@ -82,6 +80,42 @@ export async function registerUser(
     expect(registerResponse.ok()).toBeTruthy();
   }
   await waitForAuthenticatedSession(page, options);
+}
+
+/**
+ * Register a new admin via UI form.
+ */
+export async function registerAdmin(
+  page: Page,
+  {
+    name,
+    email,
+    password,
+  }: {
+    name: string;
+    email: string;
+    password: string;
+  },
+  timeoutMs = 20000,
+) {
+  await page.goto('/admin/register');
+  await page.getByLabel('이름').fill(name);
+  await page.getByLabel('관리자 이메일').fill(email);
+  await page.getByLabel('비밀번호', { exact: true }).fill(password);
+  await page.getByLabel('비밀번호 확인').fill(password);
+
+  const registerResponsePromise = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'POST' &&
+      response.url().includes('/admin/auth/register'),
+    { timeout: timeoutMs },
+  );
+
+  await page.getByRole('button', { name: '관리자 회원가입' }).click();
+  const registerResponse = await registerResponsePromise;
+  expect(registerResponse.ok()).toBeTruthy();
+  await expect(page).toHaveURL(/\/admin\/login\?registered=1/, { timeout: timeoutMs });
+  await expect(page.getByLabel('관리자 이메일')).toHaveValue(email);
 }
 
 /**
@@ -106,7 +140,7 @@ export async function loginUser(
     : '/login';
   await page.goto(loginPath);
   await page.getByLabel('이메일').fill(email);
-  await page.getByLabel('비밀번호').fill(password);
+  await page.getByLabel('비밀번호', { exact: true }).fill(password);
 
   const loginResponsePromise = page.waitForResponse(
     (response) =>
@@ -129,14 +163,14 @@ export async function loginUser(
 export async function loginAdmin(
   page: Page,
   {
-    email = TEST_ADMIN_EMAIL,
-    password = TEST_ADMIN_PASSWORD,
+    email,
+    password,
     callbackUrl,
   }: {
-    email?: string;
-    password?: string;
+    email: string;
+    password: string;
     callbackUrl?: string;
-  } = {},
+  },
   options?: AuthActionOptions,
 ) {
   const resolved = getOptions({
@@ -148,7 +182,7 @@ export async function loginAdmin(
     : '/admin/login';
   await page.goto(loginPath);
   await page.getByLabel('관리자 이메일').fill(email);
-  await page.getByLabel('비밀번호').fill(password);
+  await page.getByLabel('비밀번호', { exact: true }).fill(password);
 
   const loginResponsePromise = page.waitForResponse(
     (response) =>

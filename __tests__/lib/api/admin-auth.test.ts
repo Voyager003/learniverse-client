@@ -11,7 +11,7 @@ vi.mock('@/lib/api/client', () => ({
 }));
 
 import { adminAuthApi } from '@/lib/api/admin-auth';
-import type { LoginRequest } from '@/lib/types';
+import type { AdminRegisterRequest, LoginRequest } from '@/lib/types';
 
 describe('adminAuthApi', () => {
   beforeEach(() => {
@@ -29,6 +29,21 @@ describe('adminAuthApi', () => {
     const result = await adminAuthApi.login(request);
 
     expect(mockPost).toHaveBeenCalledWith('/admin/auth/login', request);
+    expect(result).toEqual(response);
+  });
+
+  it('POST /admin/auth/register에 요청을 보낸다', async () => {
+    const request: AdminRegisterRequest = {
+      email: 'admin@example.com',
+      password: 'password123',
+      name: '관리자',
+    };
+    const response = { email: request.email, role: 'admin' as const };
+    mockPost.mockResolvedValueOnce(response);
+
+    const result = await adminAuthApi.register(request);
+
+    expect(mockPost).toHaveBeenCalledWith('/admin/auth/register', request);
     expect(result).toEqual(response);
   });
 });

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
@@ -28,22 +29,34 @@ import { useAuth } from '@/lib/hooks/use-auth';
 import { getUserFacingErrorMessage } from '@/lib/errors/get-user-facing-error-message';
 import { loginSchema, type LoginFormValues } from '@/lib/utils/validators';
 
-const demoAdminEmail = process.env.NEXT_PUBLIC_ADMIN_DEMO_EMAIL;
-const demoAdminPassword = process.env.NEXT_PUBLIC_ADMIN_DEMO_PASSWORD;
+const PENDING_ADMIN_EMAIL_KEY = 'pendingAdminEmail';
 
 export function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') ?? '/admin';
+  const isRegistered = searchParams.get('registered') === '1';
   const { loginAdmin, isAdminLoggingIn } = useAuth();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: demoAdminEmail ?? '',
-      password: demoAdminPassword ?? '',
+      email: '',
+      password: '',
     },
   });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const pendingEmail = window.sessionStorage.getItem(PENDING_ADMIN_EMAIL_KEY);
+    if (pendingEmail) {
+      form.setValue('email', pendingEmail);
+      window.sessionStorage.removeItem(PENDING_ADMIN_EMAIL_KEY);
+    }
+  }, [form]);
 
   async function onSubmit(values: LoginFormValues) {
     try {
@@ -65,19 +78,11 @@ export function AdminLoginForm() {
         <CardDescription>플랫폼 운영자를 위한 전용 로그인 화면입니다</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="rounded-lg border border-dashed bg-muted/30 p-4 text-sm">
-          <p className="font-medium">포트폴리오 데모 안내</p>
-          {demoAdminEmail || demoAdminPassword ? (
-            <div className="mt-2 space-y-1 text-muted-foreground">
-              {demoAdminEmail ? <p>이메일: {demoAdminEmail}</p> : null}
-              {demoAdminPassword ? <p>비밀번호: {demoAdminPassword}</p> : null}
-            </div>
-          ) : (
-            <p className="mt-2 text-muted-foreground">
-              시연용 관리자 계정은 환경 변수로 주입됩니다.
-            </p>
-          )}
-        </div>
+        {isRegistered ? (
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            관리자 회원가입이 완료되었습니다. 로그인해 주세요.
+          </div>
+        ) : null}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -123,7 +128,13 @@ export function AdminLoginForm() {
           </form>
         </Form>
       </CardContent>
-      <CardFooter className="justify-center">
+      <CardFooter className="flex-col gap-2">
+        <p className="text-sm text-muted-foreground">
+          관리자 계정이 없으신가요?{' '}
+          <Link href="/admin/register" className="text-primary underline-offset-4 hover:underline">
+            관리자 회원가입
+          </Link>
+        </p>
         <p className="text-sm text-muted-foreground">
           일반 사용자이신가요?{' '}
           <Link href="/login" className="text-primary underline-offset-4 hover:underline">

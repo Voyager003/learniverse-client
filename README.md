@@ -41,7 +41,7 @@ bun run e2e:admin    # Playwright 관리자 핵심 흐름 E2E
 - 튜터 강의/레슨/과제/제출물 관리
 
 ### 관리자 콘솔
-- 관리자 전용 로그인 진입점 분리
+- 관리자 전용 로그인/회원가입 진입점 분리 (/admin/login, /admin/register)
 - 사용자 활성/비활성, 역할 변경, 세션 강제 해제
 - 강좌/과제/제출물 hide/unhide moderation
 - 수강 운영 조회와 멱등성 키 조회
@@ -120,6 +120,7 @@ bun run e2e:teardown
 ### E2E 실행 순서
 
 `bun run e2e`와 `bun run e2e:admin`은 backend API가 먼저 올라와 있어야 합니다.
+관리자 E2E는 별도 seed 관리자 계정을 사용하지 않고, 테스트 중 `/admin/register`로 관리자 계정을 직접 생성한 뒤 `/admin/login`으로 이동해 로그인합니다.
 이 저장소에서는 아래 순서로 실행하는 것을 기본으로 합니다.
 
 ```bash
