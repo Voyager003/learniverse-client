@@ -1,6 +1,6 @@
 # Learniverse Client
 
-온라인 교육 플랫폼 Learniverse의 프론트엔드 클라이언트입니다.
+온라인 교육 플랫폼 Learniverse의 클라이언트입니다.
 
 ## 기술 스택
 
@@ -32,6 +32,21 @@ bun run e2e:admin    # Playwright 관리자 핵심 흐름 E2E
 - **페이지네이션**: `{ data: { data: T[], total, page, limit, totalPages }, statusCode }`
 - **인증**: JWT Bearer 토큰 (access 15m + refresh 7d)
 
+## 주요 기능
+
+### 학생/튜터 사용자 흐름
+- 로그인/회원가입
+- 강의 탐색 및 상세 조회
+- 수강 신청과 진도 관리
+- 튜터 강의/레슨/과제/제출물 관리
+
+### 관리자 콘솔
+- 관리자 전용 로그인 진입점 분리
+- 사용자 활성/비활성, 역할 변경, 세션 강제 해제
+- 강좌/과제/제출물 hide/unhide moderation
+- 수강 운영 조회와 멱등성 키 조회
+- 관리자 조치 이력 감사 로그 조회
+
 ## Development Workflow
 
 ### Phase 진행 프로세스
@@ -45,20 +60,6 @@ bun run e2e:admin    # Playwright 관리자 핵심 흐름 E2E
    - 검증 통과 후 커밋한다
 3. **대기**: 세부 단계가 끝나면 **반드시 사용자의 다음 진행 명령을 기다린다**
 4. **절대 하지 않는다**: 사용자 명령 없이 다음 세부 단계로 자동 진행
-
-```
-Phase N-1 코드 작성 → 사용자와 검증 → 커밋 → [STOP] 사용자 명령 대기
-                                                    ↓ "다음 진행해줘"
-Phase N-2 코드 작성 → 사용자와 검증 → 커밋 → [STOP] 사용자 명령 대기
-```
-
-### TDD (Test-Driven Development)
-
-**순수 로직에 대해 테스트를 먼저 작성한다.**
-
-1. RED: 실패하는 테스트를 먼저 작성
-2. GREEN: 테스트를 통과하는 최소한의 코드 작성
-3. REFACTOR: 코드 정리 (테스트 통과 유지)
 
 ### 테스트 전략
 
@@ -78,57 +79,9 @@ Phase N-2 코드 작성 → 사용자와 검증 → 커밋 → [STOP] 사용자 
 2. `bun run lint` — ESLint 통과
 3. `bun run build` — 빌드 성공
 
-## Commit Convention
-
-### Commit 단위
-
-- 코드 추가 시: 추가한 코드 + 해당 테스트 코드 = 하나의 커밋
-- 코드 수정 시: 수정한 코드 + 영향받은 테스트 수정 = 하나의 커밋
-- **테스트가 성공해야만 커밋한다** (`bun run test` 통과 필수)
-
-### Commit Message
-
-- **한글로 작성**
-- 형식: `<타입>: <설명>`
-- 타입: feat, fix, refactor, test, chore, docs
-- 예시:
-  - `feat: 로그인 폼 컴포넌트 및 단위 테스트 추가`
-  - `fix: JWT 토큰 자동 갱신 로직 수정`
-  - `refactor: API 클라이언트 에러 처리 개선`
-
-## Coding Standards
-
-### Language
-
-- Code comments: English
-- Commit messages: Korean
-- Variable/function names: English (camelCase)
-- Component names: English (PascalCase)
-
-### TypeScript Type Safety
-
-`any` 타입은 **절대 사용하지 않는다** (ESLint `no-explicit-any: error`).
-
-| 상황 | `any` 대신 사용할 타입 |
-|---|---|
-| 타입을 모를 때 | `unknown` (사용 전 타입 가드 필수) |
-| 여러 타입 가능 | union 타입 (`string \| number`) |
-| 객체 구조 유동적 | `Record<string, unknown>` |
-| 외부 라이브러리 반환 | 인터페이스 직접 정의 |
-| 테스트 mock 객체 | 인터페이스 정의 + `as unknown as TargetType` |
-
-### Component Convention
-
-- Server Component (기본) / Client Component ('use client' 명시)
-- 공개 페이지(카탈로그, 상세) → Server Component (SEO)
-- 대시보드, 폼 → Client Component (인터랙티브)
-- 타입은 `lib/types/`에 중앙 관리
-- API 함수는 `lib/api/`에 도메인별 분리
-- TanStack Query 훅은 `lib/hooks/`에 위치
-
 ## 디렉토리 구조
 
-```
+```text
 app/(auth)/      — 인증 (로그인, 회원가입)
 app/(main)/      — 메인 (헤더+푸터 레이아웃)
 components/ui/   — shadcn/ui 컴포넌트
@@ -164,4 +117,13 @@ bun run e2e:admin
 bun run e2e:teardown
 ```
 
-관리자 E2E는 백엔드의 `admin:seed`를 사용해 `admin-e2e@test.com` 계정을 자동 준비합니다.
+### E2E 실행 순서
+
+`bun run e2e`와 `bun run e2e:admin`은 backend API가 먼저 올라와 있어야 합니다.
+이 저장소에서는 아래 순서로 실행하는 것을 기본으로 합니다.
+
+```bash
+bun run e2e:setup
+bun run e2e          # 또는 bun run e2e:admin
+bun run e2e:teardown
+```
