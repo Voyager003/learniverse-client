@@ -1,4 +1,5 @@
 import type { PaginationQuery } from './api';
+import type { EnrollmentResponse } from './enrollment';
 import { CourseCategory, CourseDifficulty, Role, SubmissionStatus } from './enums';
 
 export interface AdminUserQuery extends PaginationQuery {
@@ -86,4 +87,56 @@ export interface AdminSubmissionResponse extends AdminModerationFields {
   reviewedAt: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface AdminEnrollmentQuery extends PaginationQuery {
+  studentId?: string;
+  courseId?: string;
+  status?: EnrollmentResponse['status'];
+}
+
+export type AdminEnrollmentResponse = EnrollmentResponse;
+
+export type AdminIdempotencyStatus = 'processing' | 'completed';
+
+export interface AdminIdempotencyKeyQuery extends PaginationQuery {
+  userId?: string;
+  path?: string;
+  status?: AdminIdempotencyStatus;
+  from?: string;
+  to?: string;
+}
+
+export interface AdminIdempotencyKeyResponse {
+  id: string;
+  userId: string;
+  method: string;
+  path: string;
+  key: string;
+  status: AdminIdempotencyStatus;
+  responseStatus: number | null;
+  responseBody: Record<string, unknown> | null;
+  expiresAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminAuditLogQuery extends PaginationQuery {
+  actorId?: string;
+  action?: string;
+  resourceType?: string;
+  from?: string;
+  to?: string;
+}
+
+export interface AdminAuditLogResponse {
+  id: string;
+  actorId: string;
+  action: string;
+  resourceType: string;
+  resourceId: string | null;
+  beforeState: Record<string, unknown> | null;
+  afterState: Record<string, unknown> | null;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
 }

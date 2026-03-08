@@ -8,6 +8,9 @@ export type ErrorActionContext =
   | 'admin.user.status'
   | 'admin.user.role'
   | 'admin.user.sessions'
+  | 'admin.enrollments.query'
+  | 'admin.idempotency.query'
+  | 'admin.audit.query'
   | 'enrollment.create'
   | 'profile.update'
   | 'assignment.submit'
@@ -52,6 +55,9 @@ const fallbackMessages: Record<ErrorActionContext, string> = {
   'admin.user.status': '사용자 상태 변경에 실패했습니다. 잠시 후 다시 시도해주세요.',
   'admin.user.role': '사용자 역할 변경에 실패했습니다. 잠시 후 다시 시도해주세요.',
   'admin.user.sessions': '사용자 세션 해제에 실패했습니다. 잠시 후 다시 시도해주세요.',
+  'admin.enrollments.query': '수강 운영 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
+  'admin.idempotency.query': '멱등성 키 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
+  'admin.audit.query': '감사 로그를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
   'enrollment.create': '수강 신청에 실패했습니다. 잠시 후 다시 시도해주세요.',
   'profile.update': '프로필 수정에 실패했습니다. 잠시 후 다시 시도해주세요.',
   'assignment.submit': '과제 제출에 실패했습니다. 잠시 후 다시 시도해주세요.',
@@ -101,6 +107,9 @@ export function getUserFacingErrorMessage(
       }
       break;
     case 'admin.users.query':
+    case 'admin.enrollments.query':
+    case 'admin.idempotency.query':
+    case 'admin.audit.query':
       if (statusCode === 403) {
         return '관리자 권한이 필요한 페이지입니다.';
       }
