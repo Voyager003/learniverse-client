@@ -35,6 +35,14 @@ describe('getUserFacingErrorMessage', () => {
     );
   });
 
+  it('관리자 로그인 권한 에러를 관리자 전용 메시지로 변환한다', () => {
+    const error = new ApiClientError(403, 'Only administrators can access this endpoint');
+
+    expect(getUserFacingErrorMessage(error, 'auth.adminLogin')).toBe(
+      '관리자 계정만 로그인할 수 있습니다.',
+    );
+  });
+
   it('알 수 없는 전역 에러는 generic fallback을 반환한다', () => {
     expect(getUserFacingErrorMessage(new Error('network error'), 'query.generic')).toBe(
       '요청을 처리하지 못했습니다. 잠시 후 다시 시도해주세요.',

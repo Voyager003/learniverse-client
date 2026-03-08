@@ -5,12 +5,14 @@ import { createElement } from 'react';
 import type { AuthResponse, UserResponse } from '@/lib/types';
 import { Role } from '@/lib/types';
 
-// --- Mocks ---
-
 const { mockLogin, mockRegister, mockLogout } = vi.hoisted(() => ({
   mockLogin: vi.fn(),
   mockRegister: vi.fn(),
   mockLogout: vi.fn(),
+}));
+
+const { mockAdminLogin } = vi.hoisted(() => ({
+  mockAdminLogin: vi.fn(),
 }));
 
 const { mockGetMe } = vi.hoisted(() => ({
@@ -27,6 +29,7 @@ let mockStoreState = {
   accessToken: null as string | null,
   refreshToken: null as string | null,
   isAuthenticated: false,
+  isAuthInitialized: false,
   setAuth: mockSetAuth,
   setTokens: mockSetTokens,
   clearAuth: mockClearAuth,
@@ -41,6 +44,12 @@ vi.mock('@/lib/api/auth', () => ({
   },
 }));
 
+vi.mock('@/lib/api/admin-auth', () => ({
+  adminAuthApi: {
+    login: mockAdminLogin,
+  },
+}));
+
 vi.mock('@/lib/api/users', () => ({
   usersApi: {
     getMe: mockGetMe,
@@ -49,16 +58,12 @@ vi.mock('@/lib/api/users', () => ({
 
 vi.mock('@/lib/store/auth-store', () => ({
   useAuthStore: Object.assign(
-    // Hook call returns state
     () => mockStoreState,
-    // .getState() for non-React access
     { getState: () => mockStoreState },
   ),
 }));
 
 import { useAuth } from '@/lib/hooks/use-auth';
-
-// --- Helpers ---
 
 const mockUser: UserResponse = {
   id: 'user-1',
@@ -68,6 +73,13 @@ const mockUser: UserResponse = {
   isActive: true,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
+};
+
+const mockAdminUser: UserResponse = {
+  ...mockUser,
+  id: 'admin-1',
+  email: 'admin@example.com',
+  role: Role.ADMIN,
 };
 
 const mockAuthResponse: AuthResponse = {
@@ -84,16 +96,24 @@ function createWrapper() {
   };
 }
 
-// --- Tests ---
-
 describe('useAuth', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockLogin.mockReset();
+    mockAdminLogin.mockReset();
+    mockRegister.mockReset();
+    mockLogout.mockReset();
+    mockGetMe.mockReset();
+    mockSetAuth.mockReset();
+    mockSetTokens.mockReset();
+    mockClearAuth.mockReset();
+    mockHydrate.mockReset();
+
     mockStoreState = {
       user: null,
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
+      isAuthInitialized: false,
       setAuth: mockSetAuth,
       setTokens: mockSetTokens,
       clearAuth: mockClearAuth,
@@ -125,7 +145,28 @@ describe('useAuth', () => {
       });
 
       expect(mockLogin).toHaveBeenCalledWith({ email: 'test@example.com', password: 'pass' });
+      expect(mockSetTokens).toHaveBeenCalledWith('access-token', 'refresh-token');
       expect(mockSetAuth).toHaveBeenCalledWith(mockUser, 'access-token', 'refresh-token');
+    });
+  });
+
+  describe('loginAdmin', () => {
+    it('관리자 로그인 성공 시 관리자 정보를 가져와 스토어에 저장한다', async () => {
+      mockAdminLogin.mockResolvedValueOnce(mockAuthResponse);
+      mockGetMe.mockResolvedValueOnce(mockAdminUser);
+
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+
+      await act(async () => {
+        await result.current.loginAdmin({ email: 'admin@example.com', password: 'pass' });
+      });
+
+      expect(mockAdminLogin).toHaveBeenCalledWith({
+        email: 'admin@example.com',
+        password: 'pass',
+      });
+      expect(mockSetTokens).toHaveBeenCalledWith('access-token', 'refresh-token');
+      expect(mockSetAuth).toHaveBeenCalledWith(mockAdminUser, 'access-token', 'refresh-token');
     });
   });
 
@@ -151,6 +192,7 @@ describe('useAuth', () => {
         name: 'Test',
         role: 'student',
       });
+      expect(mockSetTokens).toHaveBeenCalledWith('access-token', 'refresh-token');
       expect(mockSetAuth).toHaveBeenCalledWith(mockUser, 'access-token', 'refresh-token');
     });
   });

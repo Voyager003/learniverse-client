@@ -2,6 +2,7 @@ import { ApiClientError } from '@/lib/api/client';
 
 export type ErrorActionContext =
   | 'auth.login'
+  | 'auth.adminLogin'
   | 'auth.register'
   | 'enrollment.create'
   | 'profile.update'
@@ -41,6 +42,7 @@ function includesMessage(message: string, expected: string): boolean {
 
 const fallbackMessages: Record<ErrorActionContext, string> = {
   'auth.login': '로그인에 실패했습니다. 잠시 후 다시 시도해주세요.',
+  'auth.adminLogin': '관리자 로그인에 실패했습니다. 계정 정보를 확인해주세요.',
   'auth.register': '회원가입에 실패했습니다. 다시 시도해주세요.',
   'enrollment.create': '수강 신청에 실패했습니다. 잠시 후 다시 시도해주세요.',
   'profile.update': '프로필 수정에 실패했습니다. 잠시 후 다시 시도해주세요.',
@@ -72,6 +74,14 @@ export function getUserFacingErrorMessage(
     case 'auth.login':
       if (statusCode === 401) {
         return '이메일 또는 비밀번호가 올바르지 않습니다.';
+      }
+      break;
+    case 'auth.adminLogin':
+      if (statusCode === 401) {
+        return '관리자 계정 정보가 올바르지 않거나 비활성화된 계정입니다.';
+      }
+      if (statusCode === 403) {
+        return '관리자 계정만 로그인할 수 있습니다.';
       }
       break;
     case 'auth.register':
