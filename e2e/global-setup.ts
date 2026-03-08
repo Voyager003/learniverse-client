@@ -1,13 +1,9 @@
-import { spawnSync } from 'node:child_process';
-import path from 'node:path';
-
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
 const API_READY_TIMEOUT_MS = Number(
   process.env.PW_API_READY_TIMEOUT_MS ?? 60000,
 );
 const API_POLL_INTERVAL_MS = 1000;
-const DOCKER_COMPOSE_FILE = 'docker-compose.e2e.yml';
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -55,28 +51,6 @@ async function waitForApiReady() {
   );
 }
 
-function seedAdminUser() {
-  const composeFile = path.join(process.cwd(), DOCKER_COMPOSE_FILE);
-  const result = spawnSync(
-    'docker',
-    ['compose', '-f', composeFile, 'exec', '-T', 'backend', 'node', 'dist/scripts/seed-admin.js'],
-    {
-      cwd: process.cwd(),
-      env: process.env,
-      encoding: 'utf-8',
-    },
-  );
-
-  if (result.status !== 0) {
-    const stderr = result.stderr?.trim();
-    const stdout = result.stdout?.trim();
-    throw new Error(
-      `[E2E global-setup] admin seed failed: ${stderr || stdout || 'unknown error'}`,
-    );
-  }
-}
-
 export default async function globalSetup() {
   await waitForApiReady();
-  seedAdminUser();
 }

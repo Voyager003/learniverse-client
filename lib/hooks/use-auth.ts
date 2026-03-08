@@ -6,7 +6,12 @@ import { adminAuthApi } from '@/lib/api/admin-auth';
 import { authApi } from '@/lib/api/auth';
 import { usersApi } from '@/lib/api/users';
 import { useAuthStore } from '@/lib/store/auth-store';
-import type { AuthResponse, LoginRequest, RegisterRequest } from '@/lib/types';
+import type {
+  AdminRegisterRequest,
+  AuthResponse,
+  LoginRequest,
+  RegisterRequest,
+} from '@/lib/types';
 
 export function useAuth() {
   const { user, isAuthenticated, isAuthInitialized, setAuth, clearAuth, hydrateFromStorage } =
@@ -43,6 +48,10 @@ export function useAuth() {
     },
   });
 
+  const adminRegisterMutation = useMutation({
+    mutationFn: (data: AdminRegisterRequest) => adminAuthApi.register(data),
+  });
+
   const logoutMutation = useMutation({
     mutationFn: async () => {
       try {
@@ -77,14 +86,17 @@ export function useAuth() {
     login: loginMutation.mutateAsync,
     loginAdmin: adminLoginMutation.mutateAsync,
     register: registerMutation.mutateAsync,
+    registerAdmin: adminRegisterMutation.mutateAsync,
     logout: logoutMutation.mutateAsync,
     initialize,
     isLoggingIn: loginMutation.isPending,
     isAdminLoggingIn: adminLoginMutation.isPending,
     isRegistering: registerMutation.isPending,
+    isAdminRegistering: adminRegisterMutation.isPending,
     isLoggingOut: logoutMutation.isPending,
     loginError: loginMutation.error,
     adminLoginError: adminLoginMutation.error,
     registerError: registerMutation.error,
+    adminRegisterError: adminRegisterMutation.error,
   };
 }

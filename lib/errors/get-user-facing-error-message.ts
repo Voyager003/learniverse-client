@@ -4,6 +4,7 @@ export type ErrorActionContext =
   | 'auth.login'
   | 'auth.adminLogin'
   | 'auth.register'
+  | 'auth.adminRegister'
   | 'admin.users.query'
   | 'admin.user.status'
   | 'admin.user.role'
@@ -51,6 +52,7 @@ const fallbackMessages: Record<ErrorActionContext, string> = {
   'auth.login': '로그인에 실패했습니다. 잠시 후 다시 시도해주세요.',
   'auth.adminLogin': '관리자 로그인에 실패했습니다. 계정 정보를 확인해주세요.',
   'auth.register': '회원가입에 실패했습니다. 다시 시도해주세요.',
+  'auth.adminRegister': '관리자 회원가입에 실패했습니다. 다시 시도해주세요.',
   'admin.users.query': '사용자 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
   'admin.user.status': '사용자 상태 변경에 실패했습니다. 잠시 후 다시 시도해주세요.',
   'admin.user.role': '사용자 역할 변경에 실패했습니다. 잠시 후 다시 시도해주세요.',
@@ -99,6 +101,7 @@ export function getUserFacingErrorMessage(
       }
       break;
     case 'auth.register':
+    case 'auth.adminRegister':
       if (statusCode === 409) {
         return '이미 가입된 이메일입니다. 다른 이메일을 사용해주세요.';
       }

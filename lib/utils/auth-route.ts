@@ -1,5 +1,5 @@
 export const PROTECTED_PREFIXES = ['/dashboard', '/admin', '/profile', '/courses'];
-export const AUTH_PREFIXES = ['/login', '/register', '/admin/login'];
+export const AUTH_PREFIXES = ['/login', '/register', '/admin/login', '/admin/register'];
 
 export type MiddlewareRedirect = {
   pathname: '/dashboard' | '/login' | '/admin/login';
@@ -18,7 +18,12 @@ export function resolveAuthRedirect(
     return { pathname: '/dashboard' };
   }
 
-  if (!hasSession && pathname !== '/admin/login' && pathname.startsWith('/admin')) {
+  if (
+    !hasSession &&
+    pathname !== '/admin/login' &&
+    pathname !== '/admin/register' &&
+    pathname.startsWith('/admin')
+  ) {
     return {
       pathname: '/admin/login',
       callbackUrl: pathname,
