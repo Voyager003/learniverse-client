@@ -43,6 +43,22 @@ describe('getUserFacingErrorMessage', () => {
     );
   });
 
+  it('본인 비활성화 에러를 관리자 사용자 상태 메시지로 변환한다', () => {
+    const error = new ApiClientError(400, 'Cannot deactivate your own account');
+
+    expect(getUserFacingErrorMessage(error, 'admin.user.status')).toBe(
+      '본인 계정은 비활성화할 수 없습니다.',
+    );
+  });
+
+  it('본인 역할 변경 에러를 관리자 사용자 역할 메시지로 변환한다', () => {
+    const error = new ApiClientError(400, 'Cannot change your own role');
+
+    expect(getUserFacingErrorMessage(error, 'admin.user.role')).toBe(
+      '본인 역할은 변경할 수 없습니다.',
+    );
+  });
+
   it('알 수 없는 전역 에러는 generic fallback을 반환한다', () => {
     expect(getUserFacingErrorMessage(new Error('network error'), 'query.generic')).toBe(
       '요청을 처리하지 못했습니다. 잠시 후 다시 시도해주세요.',
