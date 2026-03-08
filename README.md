@@ -71,14 +71,6 @@ bun run e2e:admin    # Playwright 관리자 핵심 흐름 E2E
 - **컴포넌트 렌더링 테스트(Testing Library)는 작성하지 않는다** — E2E에서 커버
 - Vitest는 UI가 아닌 **로직**(API 통신, 상태 관리, 유효성 검증)에 집중
 
-### 검증 절차
-
-커밋 전 반드시 아래를 순서대로 확인한다:
-
-1. `bun run test` — 단위 테스트 통과
-2. `bun run lint` — ESLint 통과
-3. `bun run build` — 빌드 성공
-
 ## 디렉토리 구조
 
 ```text
