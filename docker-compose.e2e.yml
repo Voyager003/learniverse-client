@@ -42,6 +42,9 @@ services:
       JWT_EXPIRES_IN: 15m
       JWT_REFRESH_SECRET: e2e-test-jwt-refresh-secret
       JWT_REFRESH_EXPIRES_IN: 7d
+      ADMIN_EMAIL: admin-e2e@test.com
+      ADMIN_PASSWORD: Test1234!
+      ADMIN_NAME: 관리자E2E
     depends_on:
       postgres:
         condition: service_healthy

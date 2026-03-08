@@ -2,7 +2,15 @@ import { ApiClientError } from '@/lib/api/client';
 
 export type ErrorActionContext =
   | 'auth.login'
+  | 'auth.adminLogin'
   | 'auth.register'
+  | 'admin.users.query'
+  | 'admin.user.status'
+  | 'admin.user.role'
+  | 'admin.user.sessions'
+  | 'admin.enrollments.query'
+  | 'admin.idempotency.query'
+  | 'admin.audit.query'
   | 'enrollment.create'
   | 'profile.update'
   | 'assignment.submit'
@@ -41,7 +49,15 @@ function includesMessage(message: string, expected: string): boolean {
 
 const fallbackMessages: Record<ErrorActionContext, string> = {
   'auth.login': '로그인에 실패했습니다. 잠시 후 다시 시도해주세요.',
+  'auth.adminLogin': '관리자 로그인에 실패했습니다. 계정 정보를 확인해주세요.',
   'auth.register': '회원가입에 실패했습니다. 다시 시도해주세요.',
+  'admin.users.query': '사용자 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
+  'admin.user.status': '사용자 상태 변경에 실패했습니다. 잠시 후 다시 시도해주세요.',
+  'admin.user.role': '사용자 역할 변경에 실패했습니다. 잠시 후 다시 시도해주세요.',
+  'admin.user.sessions': '사용자 세션 해제에 실패했습니다. 잠시 후 다시 시도해주세요.',
+  'admin.enrollments.query': '수강 운영 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
+  'admin.idempotency.query': '멱등성 키 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
+  'admin.audit.query': '감사 로그를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
   'enrollment.create': '수강 신청에 실패했습니다. 잠시 후 다시 시도해주세요.',
   'profile.update': '프로필 수정에 실패했습니다. 잠시 후 다시 시도해주세요.',
   'assignment.submit': '과제 제출에 실패했습니다. 잠시 후 다시 시도해주세요.',
@@ -74,12 +90,55 @@ export function getUserFacingErrorMessage(
         return '이메일 또는 비밀번호가 올바르지 않습니다.';
       }
       break;
+    case 'auth.adminLogin':
+      if (statusCode === 401) {
+        return '관리자 계정 정보가 올바르지 않거나 비활성화된 계정입니다.';
+      }
+      if (statusCode === 403) {
+        return '관리자 계정만 로그인할 수 있습니다.';
+      }
+      break;
     case 'auth.register':
       if (statusCode === 409) {
         return '이미 가입된 이메일입니다. 다른 이메일을 사용해주세요.';
       }
       if (statusCode === 400) {
         return '회원가입 요청이 올바르지 않습니다. 입력값을 확인해주세요.';
+      }
+      break;
+    case 'admin.users.query':
+    case 'admin.enrollments.query':
+    case 'admin.idempotency.query':
+    case 'admin.audit.query':
+      if (statusCode === 403) {
+        return '관리자 권한이 필요한 페이지입니다.';
+      }
+      break;
+    case 'admin.user.status':
+      if (statusCode === 404) {
+        return '사용자를 찾을 수 없습니다.';
+      }
+      if (statusCode === 400 && includesMessage(message, 'cannot deactivate your own account')) {
+        return '본인 계정은 비활성화할 수 없습니다.';
+      }
+      if (statusCode === 400 && includesMessage(message, 'at least one active admin must remain')) {
+        return '활성 관리자 계정은 최소 1명 이상 유지되어야 합니다.';
+      }
+      break;
+    case 'admin.user.role':
+      if (statusCode === 404) {
+        return '사용자를 찾을 수 없습니다.';
+      }
+      if (statusCode === 400 && includesMessage(message, 'cannot change your own role')) {
+        return '본인 역할은 변경할 수 없습니다.';
+      }
+      if (statusCode === 400 && includesMessage(message, 'at least one active admin must remain')) {
+        return '활성 관리자 계정은 최소 1명 이상 유지되어야 합니다.';
+      }
+      break;
+    case 'admin.user.sessions':
+      if (statusCode === 404) {
+        return '사용자를 찾을 수 없습니다.';
       }
       break;
     case 'enrollment.create':

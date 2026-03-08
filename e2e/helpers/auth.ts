@@ -8,6 +8,8 @@ export function uniqueEmail() {
 }
 
 export const TEST_PASSWORD = 'Test1234!';
+export const TEST_ADMIN_EMAIL = process.env.PW_ADMIN_EMAIL ?? 'admin-e2e@test.com';
+export const TEST_ADMIN_PASSWORD = process.env.PW_ADMIN_PASSWORD ?? TEST_PASSWORD;
 
 interface AuthActionOptions {
   waitForAuthReady?: boolean;
@@ -119,4 +121,46 @@ export async function loginUser(
     expect(loginResponse.ok()).toBeTruthy();
   }
   await waitForAuthenticatedSession(page, options);
+}
+
+/**
+ * Login via admin UI form.
+ */
+export async function loginAdmin(
+  page: Page,
+  {
+    email = TEST_ADMIN_EMAIL,
+    password = TEST_ADMIN_PASSWORD,
+    callbackUrl,
+  }: {
+    email?: string;
+    password?: string;
+    callbackUrl?: string;
+  } = {},
+  options?: AuthActionOptions,
+) {
+  const resolved = getOptions({
+    ...options,
+    expectedPathPattern: options?.expectedPathPattern ?? /\/admin(\/.*)?/,
+  });
+  const loginPath = callbackUrl
+    ? `/admin/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
+    : '/admin/login';
+  await page.goto(loginPath);
+  await page.getByLabel('관리자 이메일').fill(email);
+  await page.getByLabel('비밀번호').fill(password);
+
+  const loginResponsePromise = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'POST' &&
+      response.url().includes('/admin/auth/login'),
+    { timeout: resolved.timeoutMs },
+  );
+
+  await page.getByRole('button', { name: '관리자 로그인' }).click();
+  const loginResponse = await loginResponsePromise;
+  if (resolved.waitForAuthReady) {
+    expect(loginResponse.ok()).toBeTruthy();
+  }
+  await waitForAuthenticatedSession(page, resolved);
 }
